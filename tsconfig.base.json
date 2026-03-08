@@ -1,0 +1,14 @@
+{
+  
+  "compilerOptions": {
+    "target": "ES2022",
+    "moduleResolution": "Bundler",
+    "strict": true,
+    "paths": {
+      "@shared/*": ["packages/shared/src/*"]
+    },
+    "pretty": true,
+    "noImplicitAny": true,
+
+  }
+}

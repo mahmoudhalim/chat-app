@@ -1,0 +1,16 @@
+{
+  "name": "chat-app",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  },
+  "scripts": {
+    "dev:web": "npm run start -w web",
+    "dev:api": "npm run dev -w api"
+  }
+}
