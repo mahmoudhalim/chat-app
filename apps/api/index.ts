@@ -1,17 +1,9 @@
-import express from "express";
-import cors from "cors";
-
-const app = express();
-
-app.use(cors());
-app.use(express.json());
-
-app.get("/api/hello", (req, res) => {
-  res.json({ message: "Hello from Express API" });
-});
-
+import { connect } from "@configs/mongoose.js";
+import app from "./src/app.js";
 const PORT = 3000;
 
+await connect();
+
 app.listen(PORT, () => {
-  console.log(`API running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
