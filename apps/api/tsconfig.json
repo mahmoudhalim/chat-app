@@ -13,6 +13,7 @@
       "@routes/*": ["src/routes/*"],
       "@utils/*": ["src/utils/*"],
       "@validators/*": ["src/validators/*"],
+      "@middlewares/*": ["src/middlewares/*"],
       "@shared/*": ["../../packages/shared/src/*"]
 
     },
