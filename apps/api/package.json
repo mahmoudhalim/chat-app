@@ -18,7 +18,9 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/mongoose": "^5.11.96",
+    "@types/morgan": "^1.9.10",
     "@types/node": "^25.3.5",
+    "morgan": "^1.10.1",
     "tsc-alias": "^1.8.16",
     "tsx": "^4.19.2",
     "typescript": "^5.9.3"
@@ -28,6 +30,7 @@
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
     "express": "^5.0.0",
-    "mongoose": "^9.2.4"
+    "mongoose": "^9.2.4",
+    "zod": "^4.3.6"
   }
 }
