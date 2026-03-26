@@ -1,18 +1,10 @@
 import { User, type UserDocument } from "@models/userModel";
 import HttpError from "@utils/httpError";
+import { isMongoDuplicateKeyError } from "@utils/mongoErrors";
 import type {
   CreateUserInput,
   UpdateUserInput,
 } from "@validators/userValidator";
-
-const isMongoDuplicateKeyError = (error: unknown) => {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    error.code === 11000
-  );
-};
 
 const getAll = async (): Promise<UserDocument[]> => {
   const users = await User.find();
@@ -58,6 +50,7 @@ const update = async (
       throw new HttpError(409, "Username already in use");
     }
   }
+
 
   existing.set(data);
 
