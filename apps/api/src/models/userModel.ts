@@ -2,9 +2,11 @@ import { Schema, model, Document } from "mongoose";
 import bcrypt from "bcrypt";
 
 interface UserDocument extends Document {
+  id: string;
   username: string;
   email: string;
   password: string;
+  comparePassword(password: string): Promise<boolean>;
 }
 const userSchema = new Schema<UserDocument>({
   username: {
@@ -29,12 +31,16 @@ userSchema.pre("save", async function () {
   }
 });
 
+userSchema.methods.comparePassword = async function (password: string) {
+  return await bcrypt.compare(password, this.password);
+};
+
 userSchema.set("toJSON", {
   transform: function (_doc, ret) {
     const { __v, _id, password, ...rest } = ret;
     return {
-      id: _id,
       ...rest,
+      id: _id,
     };
   },
 });
