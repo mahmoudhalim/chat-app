@@ -12,7 +12,9 @@
       "@configs/*": ["src/configs/*"],
       "@routes/*": ["src/routes/*"],
       "@utils/*": ["src/utils/*"],
+      "@validators/*": ["src/validators/*"],
       "@shared/*": ["../../packages/shared/src/*"]
+
     },
     "strict": true,
     "noUnusedLocals": true,
