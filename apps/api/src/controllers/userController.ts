@@ -23,10 +23,6 @@ const update = async (req: Request, res: Response) => {
   const id = req.params.id as string;
   const data = req.body as UpdateUserInput;
   const user = await userService.update(id, data);
-  if (!user) {
-    res.status(404).json({ message: "User not found" });
-    return;
-  }
   res.json(user);
 }
 

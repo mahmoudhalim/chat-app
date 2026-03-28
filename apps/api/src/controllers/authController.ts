@@ -12,12 +12,7 @@ const refreshTokenCookieOptions = {
 const login: RequestHandler = async (req, res) => {
   const { username, password } = req.body as LoginInput;
 
-  const loginResult = await authService.login(username, password);
-  if (!loginResult) {
-    return res.status(401).json({ message: "Invalid credentials" });
-  }
-
-  const { accessToken, refreshToken, user } = loginResult;
+  const { accessToken, refreshToken, user } = await authService.login(username, password);
 
   res.cookie("refreshToken", refreshToken, refreshTokenCookieOptions);
 
@@ -28,33 +23,28 @@ const login: RequestHandler = async (req, res) => {
   });
 };
 
-const refresh: RequestHandler = async (req, res) => {
+const refresh: RequestHandler = async (req, res, next) => {
   const refreshToken = req.cookies.refreshToken;
 
   if (!refreshToken) {
     return res.status(401).json({ message: "Refresh token is required" });
   }
 
-  const refreshed = await authService.refresh(refreshToken);
-  if (refreshed.status === "invalid" || refreshed.status === "expired") {
-    res.clearCookie("refreshToken", refreshTokenCookieOptions);
-    return res.status(401).json({ message: "Invalid or expired refresh token" });
-  }
+  try {
+    const refreshed = await authService.refresh(refreshToken);
+    
+    res.cookie("refreshToken", refreshed.refreshToken, refreshTokenCookieOptions);
 
-  if (refreshed.status === "reuse_detected") {
-    res.clearCookie("refreshToken", refreshTokenCookieOptions);
-    return res.status(401).json({
-      message: "Refresh token reuse detected. Please log in again.",
+    return res.status(200).json({
+      message: "Token refreshed",
+      accessToken: refreshed.accessToken,
+      user: refreshed.user,
     });
+  } catch (error) {
+    res.clearCookie("refreshToken", refreshTokenCookieOptions);
+    next(error);
+    return;
   }
-
-  res.cookie("refreshToken", refreshed.refreshToken, refreshTokenCookieOptions);
-
-  return res.status(200).json({
-    message: "Token refreshed",
-    accessToken: refreshed.accessToken,
-    user: refreshed.user,
-  });
 };
 
 const logout: RequestHandler = async (req, res) => {

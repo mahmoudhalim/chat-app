@@ -1,5 +1,5 @@
 import { User, type UserDocument } from "@models/userModel";
-import HttpError from "@utils/httpError";
+import { ConflictError, NotFoundError } from "@utils/customErrors";
 import { isMongoDuplicateKeyError } from "@utils/mongoErrors";
 import type {
   CreateUserInput,
@@ -11,8 +11,11 @@ const getAll = async (): Promise<UserDocument[]> => {
   return users;
 };
 
-const getById = async (id: string): Promise<UserDocument | null> => {
+const getById = async (id: string): Promise<UserDocument> => {
   const found = await User.findById(id);
+  if (!found) {
+    throw new NotFoundError("User not found");
+  }
   return found;
 };
 
@@ -22,7 +25,7 @@ const create = async (data: CreateUserInput): Promise<UserDocument> => {
     return newUser;
   } catch (error) {
     if (isMongoDuplicateKeyError(error)) {
-      throw new HttpError(409, "User already exists");
+      throw new ConflictError("User already exists");
     }
     throw error;
   }
@@ -31,26 +34,25 @@ const create = async (data: CreateUserInput): Promise<UserDocument> => {
 const update = async (
   id: string,
   data: UpdateUserInput,
-): Promise<UserDocument | null> => {
+): Promise<UserDocument> => {
   const existing = await User.findById(id);
   if (!existing) {
-    return null;
+    throw new NotFoundError("User not found");
   }
 
   if (data.email && data.email !== existing.email) {
     const emailOwner = await User.findOne({ email: data.email });
     if (emailOwner && emailOwner.id !== id) {
-      throw new HttpError(409, "Email already in use");
+      throw new ConflictError("Email already in use");
     }
   }
 
   if (data.username && data.username !== existing.username) {
     const usernameOwner = await User.findOne({ username: data.username });
     if (usernameOwner && usernameOwner.id !== id) {
-      throw new HttpError(409, "Username already in use");
+      throw new ConflictError("Username already in use");
     }
   }
-
 
   existing.set(data);
 
@@ -59,15 +61,17 @@ const update = async (
     return updated;
   } catch (error) {
     if (isMongoDuplicateKeyError(error)) {
-      throw new HttpError(409, "User already exists");
+      throw new ConflictError("User already exists");
     }
     throw error;
   }
 };
 
-const deleteById = async (id: string): Promise<UserDocument | null> => {
+const deleteById = async (id: string): Promise<void> => {
   const deleted = await User.findByIdAndDelete(id);
-  return deleted;
+  if (!deleted) {
+    throw new NotFoundError("User not found");
+  }
 };
 
 export default {

@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { User } from "@models/userModel";
-import { UserDocument } from "@models/userModel";
+import { User, type UserDocument } from "@models/userModel";
+import { UnauthorizedError } from "@utils/customErrors";
 import {
   issueInitialToken,
   rotateToken,
@@ -8,16 +8,11 @@ import {
   deleteTokensByUserId,
 } from "@services/refreshTokenService";
 
-type RefreshResult =
-  | {
-      status: "ok";
-      accessToken: string;
-      refreshToken: string;
-      user: UserDocument;
-    }
-  | { status: "invalid" }
-  | { status: "expired" }
-  | { status: "reuse_detected" };
+type RefreshResult = {
+  accessToken: string;
+  refreshToken: string;
+  user: UserDocument;
+};
 
 const createAccessToken = (userId: string) => {
   const jwtSecret = process.env.JWT_SECRET as string;
@@ -27,12 +22,12 @@ const createAccessToken = (userId: string) => {
 const login = async (username: string, password: string) => {
   const user = (await User.findOne({ username })) as UserDocument | null;
   if (!user) {
-    return null;
+    throw new UnauthorizedError("Invalid credentials");
   }
 
   const isPasswordValid = await user.comparePassword(password);
   if (!isPasswordValid) {
-    return null;
+    throw new UnauthorizedError("Invalid credentials");
   }
 
   const accessToken = createAccessToken(user.id);
@@ -47,22 +42,26 @@ const login = async (username: string, password: string) => {
 
 const refresh = async (token: string): Promise<RefreshResult> => {
   const rotated = await rotateToken(token);
-  if (rotated.status !== "ok") {
-    return rotated;
+  
+  if (rotated.status === "invalid" || rotated.status === "expired") {
+    throw new UnauthorizedError("Invalid or expired refresh token");
+  }
+  
+  if (rotated.status === "reuse_detected") {
+    throw new UnauthorizedError("Refresh token reuse detected. Please log in again.");
   }
 
   const userId = rotated.userId;
 
   const user = (await User.findById(userId)) as UserDocument | null;
   if (!user) {
-    return { status: "invalid" };
+    throw new UnauthorizedError("User not found");
   }
 
   const accessToken = createAccessToken(user.id);
   const refreshToken = rotated.refreshToken;
 
   return {
-    status: "ok",
     accessToken,
     refreshToken,
     user,

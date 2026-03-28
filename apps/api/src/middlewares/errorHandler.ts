@@ -1,14 +1,30 @@
 import type { ErrorRequestHandler } from "express";
-import HttpError from "@utils/httpError";
+import {
+  DomainError,
+  NotFoundError,
+  ConflictError,
+  ForbiddenError,
+  BadRequestError,
+  UnauthorizedError,
+} from "@utils/customErrors";
 import { isMongoCastError, isMongoDuplicateKeyError } from "@utils/mongoErrors";
 
 
 const errorHandler: ErrorRequestHandler = (err, _req, res, _next) => {
   console.error(err);
-  if (err instanceof HttpError) {
-    res.status(err.statusCode).json({ message: err.message });
+  
+  if (err instanceof DomainError) {
+    let statusCode = 400;
+    if (err instanceof NotFoundError) statusCode = 404;
+    else if (err instanceof ConflictError) statusCode = 409;
+    else if (err instanceof ForbiddenError) statusCode = 403;
+    else if (err instanceof UnauthorizedError) statusCode = 401;
+    else if (err instanceof BadRequestError) statusCode = 400;
+
+    res.status(statusCode).json({ message: err.message });
     return;
   }
+  
   if (isMongoCastError(err)) {
     res.status(404).json({ message: "malformed id" });
     return;
