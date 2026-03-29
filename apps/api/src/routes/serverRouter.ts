@@ -6,13 +6,12 @@ import { createServerSchema, joinServerSchema } from "@validators/serverValidato
 
 const serverRouter = Router();
 
-serverRouter.use(requireAuth);
 
-serverRouter.post("/", validateBody(createServerSchema), serverController.createServer);
-serverRouter.get("/", serverController.getUserServers);
-serverRouter.get("/:id", serverController.getServerById);
-serverRouter.post("/join", validateBody(joinServerSchema), serverController.joinServer);
-serverRouter.post("/:id/leave", serverController.leaveServer);
-serverRouter.delete("/:id", serverController.deleteServer);
+serverRouter.post("/", requireAuth, validateBody(createServerSchema), serverController.createServer);
+serverRouter.get("/", requireAuth, serverController.getUserServers);
+serverRouter.get("/:id", serverController.getServerById); 
+serverRouter.post("/join", requireAuth, validateBody(joinServerSchema), serverController.joinServer);
+serverRouter.post("/:id/leave", requireAuth, serverController.leaveServer);
+serverRouter.delete("/:id", requireAuth, serverController.deleteServer);
 
 export default serverRouter;
