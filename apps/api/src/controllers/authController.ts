@@ -57,8 +57,12 @@ const logout: RequestHandler = async (req, res) => {
   return res.status(200).json({ message: "Logged out" });
 };
 
-const logoutAll: RequestHandler = async (_req, res) => {
-  const userId = res.locals.userId as string;
+const logoutAll: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (!userId) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+
   await authService.logoutAll(userId);
   res.clearCookie("refreshToken", refreshTokenCookieOptions);
   return res.status(200).json({ message: "Logged out from all sessions" });

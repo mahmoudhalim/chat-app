@@ -3,7 +3,9 @@ import channelService from "@services/channelService";
 import type { CreateChannelInput } from "@validators/channelValidator";
 
 const createChannel: RequestHandler = async (req, res) => {
-  const userId = res.locals.userId as string;
+  const userId = req.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
   const serverId = req.params.serverId as string;
   const { name, type } = req.body as CreateChannelInput;
 
@@ -18,7 +20,9 @@ const getServerChannels: RequestHandler = async (req, res) => {
 };
 
 const deleteChannel: RequestHandler = async (req, res) => {
-  const userId = res.locals.userId as string;
+  const userId = req.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
   const channelId = req.params.id as string;
 
   await channelService.deleteChannel(channelId, userId);

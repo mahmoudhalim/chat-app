@@ -18,7 +18,7 @@ const requireAuth: RequestHandler = (req, res, next) => {
       return;
     }
 
-    res.locals.userId = payload.id;
+    req.userId = payload.id;
     next();
   } catch {
     res.status(401).json({ message: "Unauthorized" });
