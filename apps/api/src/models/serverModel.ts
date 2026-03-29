@@ -44,7 +44,6 @@ const serverSchema = new Schema<ServerDocument>({
   members: [serverMemberSchema],
 }, { timestamps: true });
 
-serverSchema.index({ inviteCode: 1 });
 
 serverSchema.set("toJSON", {
   transform: function (_doc, ret) {
