@@ -1,0 +1,56 @@
+<div class="flex flex-col h-full">
+  <!-- Chat Header -->
+  <div class="h-12 px-4 flex items-center justify-between border-b border-[#1f2023] shadow-sm z-2 shrink-0">
+    <div class="flex items-center">
+      <span class="text-xl text-discord-400 mr-2 font-light"><fa-icon icon="hashtag"></fa-icon></span>
+      <h2 class="text-base font-semibold text-[#f2f3f5]">general</h2>
+    </div>
+    <div class="flex gap-4 text-discord-200">
+      <span class="cursor-pointer text-lg hover:text-discord-100"><fa-icon icon="bell"></fa-icon></span>
+      <span class="cursor-pointer text-lg hover:text-discord-100"><fa-icon icon="thumbtack"></fa-icon></span>
+      <span class="cursor-pointer text-lg hover:text-discord-100"><fa-icon icon="users"></fa-icon></span>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="flex-1 overflow-y-auto py-4 flex flex-col min-h-0">
+
+    <div class="flex px-4 py-2 mt-4 hover:bg-[#2e3035] transition-colors">
+      <div class="w-10 h-10 rounded-full bg-[#3ba55c] mr-4 shrink-0 mt-0.5"></div>
+      <div class="flex flex-col">
+        <div class="flex items-baseline mb-1">
+          <span class="text-base font-medium text-[#f2f3f5] mr-2 cursor-pointer hover:underline">OtherUser</span>
+          <span class="text-xs text-discord-300">Today at 10:30 AM</span>
+        </div>
+        <div class="text-base text-discord-100 leading-snug">Hello everyone!</div>
+      </div>
+    </div>
+
+    <div class="flex px-4 py-2 mt-2 hover:bg-[#2e3035] transition-colors">
+      <div class="w-10 h-10 rounded-full bg-discord-500 mr-4 shrink-0 mt-0.5"></div>
+      <div class="flex flex-col">
+        <div class="flex items-baseline mb-1">
+          <span class="text-base font-medium text-[#f2f3f5] mr-2 cursor-pointer hover:underline">Username</span>
+          <span class="text-xs text-discord-300">Today at 10:32 AM</span>
+        </div>
+        <div class="text-base text-discord-100 leading-snug">Hi there! How's it going?</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Input Area -->
+  <div class="px-4 pb-6 shrink-0 mt-auto">
+    <div class="bg-[#383a40] rounded-lg flex items-center px-4 h-11">
+      <span class="bg-discord-200 text-[#383a40] w-6 h-6 rounded-full flex items-center justify-center font-bold text-lg cursor-pointer mr-4 hover:bg-discord-100 shrink-0 transition-colors">+</span>
+
+      <!-- Using generic input for Tailwind -->
+      <input type="text" placeholder="Message #general" class="flex-1 bg-transparent border-none text-discord-100 text-base outline-none placeholder:text-[#72767d]" />
+
+      <div class="flex gap-3 text-discord-200 ml-2">
+        <span class="cursor-pointer text-xl hover:text-discord-100"><fa-icon icon="gift"></fa-icon></span>
+        <span class="cursor-pointer text-xl hover:text-discord-100"><fa-icon icon="face-smile"></fa-icon></span>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,5 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
+import { faGear, faHashtag, faHeadphones, faMicrophone, faVolumeHigh, faBell, faThumbtack, faUsers, faGift, faFaceSmile } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-root',
@@ -8,5 +10,18 @@ import { RouterOutlet } from '@angular/router';
   styleUrl: './app.css',
 })
 export class App {
-  protected readonly title = signal('web');
+  constructor(library: FaIconLibrary) {
+    library.addIcons(
+      faGear,
+      faHashtag,
+      faHeadphones,
+      faMicrophone,
+      faVolumeHigh,
+      faBell,
+      faThumbtack,
+      faUsers,
+      faGift,
+      faFaceSmile
+    );
+  }
 }
