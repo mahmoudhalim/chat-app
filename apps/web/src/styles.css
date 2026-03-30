@@ -1,1 +1,42 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+@plugin "daisyui";
+
+@theme {
+  --color-discord-100: #dbdee1;
+  --color-discord-200: #b5bac1;
+  --color-discord-300: #949ba4;
+  --color-discord-400: #80848e;
+  --color-discord-500: #5865f2;
+  --color-discord-600: #3f4147;
+  --color-discord-700: #35373c;
+  --color-discord-800: #313338;
+  --color-discord-850: #2b2d31;
+  --color-discord-900: #1e1f22;
+  --color-discord-green: #23a559;
+  --color-discord-red: #da373c;
+}
+
+@layer base {
+  body {
+    font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    background-color: var(--color-discord-800);
+    color: var(--color-discord-100);
+    overflow: hidden;
+  }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #1a1b1e;
+  border-radius: 4px;
+}

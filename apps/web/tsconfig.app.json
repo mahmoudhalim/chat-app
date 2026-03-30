@@ -5,7 +5,10 @@
   "compilerOptions": {
     "baseUrl": ".",
     "outDir": "./out-tsc/app",
-    "types": []
+    "types": [],
+    "paths": {
+      "@shared/*": ["../../packages/shared/src/*"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.html"],
   "exclude": ["src/**/*.spec.ts"]
