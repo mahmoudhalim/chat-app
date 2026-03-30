@@ -1,0 +1,17 @@
+<div class="flex flex-col items-center gap-2 w-full">
+
+  @for (server of servers(); track server.id) {
+      <div [routerLink]="['/dashboard', server.id]" class="relative w-12 h-12 flex items-center justify-center cursor-pointer group">
+    <div class="w-12 h-12 rounded-3xl bg-discord-800 flex items-center justify-center font-bold text-base transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-discord-500 group-hover:text-white">
+      <span>{{server.name[0]}}</span>
+    </div>
+  </div>
+  }
+
+  <!-- Add Server Button -->
+  <div class="relative w-12 h-12 flex items-center justify-center cursor-pointer group mt-2">
+    <div class="w-12 h-12 rounded-3xl bg-discord-800 text-discord-green flex items-center justify-center font-bold text-2xl transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-discord-green group-hover:text-white">
+      <span>+</span>
+    </div>
+  </div>
+</div>
