@@ -1,0 +1,38 @@
+<div class="min-h-screen flex items-center justify-center bg-base-100">
+  <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box w-96 border p-8 shadow-sm">
+      <legend class="fieldset-legend text-lg font-bold px-2">Register</legend>
+
+      @if (errorMessage()) {
+        <div class="mb-4 text-error text-sm font-semibold bg-error/10 p-3 rounded-lg border border-error/20">
+          {{ errorMessage() }}
+        </div>
+      }
+
+      <label class="label">Email</label>
+      <input type="email" formControlName="email" class="input w-full" placeholder="Email" />
+      @if (registerForm.controls.email.invalid && registerForm.controls.email.touched) {
+        <span class="text-error text-xs mt-1">Valid email is required</span>
+      }
+
+      <label class="label mt-2">Username</label>
+      <input type="text" formControlName="username" class="input w-full" placeholder="Username" />
+      @if (registerForm.controls.username.invalid && registerForm.controls.username.touched) {
+        <span class="text-error text-xs mt-1">Username must be at least 3 characters</span>
+      }
+
+      <label class="label mt-2">Password</label>
+      <input type="password" formControlName="password" class="input w-full" placeholder="Password" />
+      @if (registerForm.controls.password.invalid && registerForm.controls.password.touched) {
+        <span class="text-error text-xs mt-1">Password must be at least 6 characters</span>
+      }
+      
+      <button type="submit" [disabled]="registerForm.invalid" class="btn btn-neutral w-full mt-6">Register</button>
+      
+      <div class="mt-4 text-center text-sm">
+        <span class="text-base-content/70">Already have an account? </span>
+        <a routerLink="/login" class="link link-primary">Login</a>
+      </div>
+    </fieldset>
+  </form>
+</div>
