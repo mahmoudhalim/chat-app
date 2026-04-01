@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, map, catchError, of } from 'rxjs';
 import { User } from '@shared/models';
 
 export interface AuthResponse {
@@ -40,5 +40,24 @@ export class AuthAPI {
         localStorage.removeItem('accessToken');
       })
     );
+  }
+
+  refresh(): Observable<boolean> {
+    return this.http.post<AuthResponse>(`${this.baseUrl}/refresh`, {}).pipe(
+      map(response => {
+        this.currentUser.set(response.user);
+        localStorage.setItem('accessToken', response.accessToken);
+        return true;
+      }),
+      catchError(() => {
+        this.currentUser.set(null);
+        localStorage.removeItem('accessToken');
+        return of(false);
+      })
+    );
+  }
+
+  isAuthenticated(): boolean {
+    return localStorage.getItem('accessToken') !== null;
   }
 }
