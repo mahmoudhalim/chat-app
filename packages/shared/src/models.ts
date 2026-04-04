@@ -5,13 +5,13 @@ export type User = {
   username: string;
 };
 
-export type Message = {
+export type MessageDTO = {
   id: string;
-  channelId: string;
-  userId: string;
-  content: string;
-  createdAt: Date;
-  editedAt?: Date;
+  sender: string; 
+  channel: string; 
+  text: string;
+  createdAt?: Date | string;
+  updatedAt?: Date | string;
 };
 
 export type ServerMember = {
@@ -28,7 +28,7 @@ export type Server = {
   createdAt: Date;
 };
 
-export type ChannelType = 'text' | 'voice' | 'video';
+export type ChannelType = "text" | "voice" | "video";
 
 export type Channel = {
   id: string;
@@ -37,3 +37,7 @@ export type Channel = {
   type: ChannelType;
   createdAt: Date;
 };
+export interface ChannelResponse {
+  channel: Channel;
+  messages: MessageDTO[];
+}
