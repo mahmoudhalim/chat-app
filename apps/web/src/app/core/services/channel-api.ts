@@ -1,11 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Channel } from '@shared/models';
-import { map, Observable, tap } from 'rxjs';
+import { Channel, ChannelResponse, MessageDTO } from '@shared/models';
+import { map, Observable } from 'rxjs';
+import { normalizeMessageDates } from 'src/app/core/utils/message-date';
 
-interface ChannelResponse {
-  channels: Channel[];
-}
 
 
 @Injectable({
@@ -15,11 +13,17 @@ export class ChannelAPI {
   private readonly http = inject(HttpClient);
 
   getChannelList(serverId: string): Observable<Channel[]> {
-    console.log('serverId', serverId);
-    return this.http.get<ChannelResponse>(`/api/servers/${serverId}/channels`).pipe(
+    return this.http.get<{ channels: Channel[] }>(`/api/servers/${serverId}/channels`).pipe(
       map(response => response.channels),
-      tap(console.log)
     );
   }
 
+  getMessages(id: string): Observable<ChannelResponse> {
+    return this.http.get<ChannelResponse>(`/api/channels/${id}`).pipe(
+      map(response => ({
+        ...response,
+        messages: response.messages.map((message: MessageDTO) => normalizeMessageDates(message)),
+      }))
+    );
+  }
 }

@@ -23,12 +23,14 @@
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@tailwindcss/postcss": "^4.2.2",
     "rxjs": "~7.8.0",
+    "socket.io-client": "^4.8.3",
     "tslib": "^2.3.0"
   },
   "devDependencies": {
     "@angular/build": "^21.2.1",
     "@angular/cli": "^21.2.1",
     "@angular/compiler-cli": "^21.2.0",
+    "@types/socket.io-client": "^1.4.36",
     "autoprefixer": "^10.4.27",
     "daisyui": "^5.5.19",
     "jsdom": "^28.0.0",
