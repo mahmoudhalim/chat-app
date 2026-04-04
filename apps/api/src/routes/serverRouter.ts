@@ -17,6 +17,6 @@ serverRouter.post("/:id/leave", requireAuth, serverController.leaveServer);
 serverRouter.delete("/:id", requireAuth, serverController.deleteServer);
 
 serverRouter.post("/:serverId/channels", requireAuth, validateBody(createChannelSchema), channelController.createChannel);
-serverRouter.get("/:serverId/channels", channelController.getServerChannels);
+serverRouter.get("/:serverId/channels", requireAuth, channelController.getServerChannels);
 
 export default serverRouter;

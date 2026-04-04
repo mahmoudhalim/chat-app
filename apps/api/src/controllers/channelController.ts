@@ -14,9 +14,22 @@ const createChannel: RequestHandler = async (req, res) => {
 };
 
 const getServerChannels: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
   const serverId = req.params.serverId as string;
-  const channels = await channelService.getServerChannels(serverId);
+  const channels = await channelService.getServerChannels(serverId, userId);
   return res.status(200).json({ channels });
+};
+
+const getChannelById: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+  const channelId = req.params.id as string;
+  const channel = await channelService.getChannelById(channelId, userId);
+  const messages = await channelService.getAllMessages(channelId, userId);
+  return res.status(200).json({ channel, messages });
 };
 
 const deleteChannel: RequestHandler = async (req, res) => {
@@ -32,5 +45,6 @@ const deleteChannel: RequestHandler = async (req, res) => {
 export default {
   createChannel,
   getServerChannels,
+  getChannelById,
   deleteChannel,
 };

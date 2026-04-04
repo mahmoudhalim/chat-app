@@ -6,6 +6,7 @@ const channelRouter = Router();
 
 channelRouter.use(requireAuth);
 
+channelRouter.get("/:id", channelController.getChannelById);
 channelRouter.delete("/:id", channelController.deleteChannel);
 
 export default channelRouter;
