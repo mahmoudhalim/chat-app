@@ -28,6 +28,20 @@ const channelSchema = new Schema<ChannelDocument>({
 
 channelSchema.index({ serverId: 1 });
 
+channelSchema.pre(
+  "deleteOne",
+  { document: false, query: true },
+  async function () {
+    const filter = this.getFilter() as { _id?: Types.ObjectId | string };
+    if (!filter._id) {
+      return;
+    }
+
+    await model("Message").deleteMany({ channel: filter._id });
+  },
+);
+
+
 channelSchema.set("toJSON", {
   transform: function (_doc, ret) {
     const { __v, _id, ...rest } = ret;

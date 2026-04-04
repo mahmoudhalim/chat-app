@@ -18,6 +18,7 @@ const serverMemberSchema = new Schema<ServerMember>({
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
+    index: true,
   },
   joinedAt: {
     type: Date,
@@ -35,6 +36,7 @@ const serverSchema = new Schema<ServerDocument>({
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
+    index: true,
   },
   inviteCode: {
     type: String,
