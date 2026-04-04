@@ -6,7 +6,6 @@ import { MemberList } from './member-list/member-list';
 
 @Component({
   selector: 'app-dashboard',
-  standalone: true,
   imports: [ServerList, ChannelList, ChatArea, MemberList],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
