@@ -15,7 +15,7 @@ export type MessageDTO = {
 };
 
 export type ServerMember = {
-  userId: string;
+  userId: User;
   joinedAt: Date;
 };
 
