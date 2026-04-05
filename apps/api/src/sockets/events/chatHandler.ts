@@ -19,9 +19,4 @@ export const message = (socket: any) => {
   socket.on("chat:leave", (data: {channelId: string}) => {
     socket.leave(data.channelId);
   });
-
-  socket.on("disconnect", () => {
-    console.log("a user disconnected");
-  });
-
 };
