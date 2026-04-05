@@ -1,7 +1,12 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
 import { MessageDTO } from '@shared/models';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
+
+type OnlineMembersPayload = {
+  userIds: string[];
+  count: number;
+};
 @Injectable({
   providedIn: 'root',
 })
@@ -13,9 +18,19 @@ export class socketService {
   private messageStreamSubject = new Subject<MessageDTO>();
   messageStream = this.messageStreamSubject.asObservable();
 
+  private onlineMembersSubject = new BehaviorSubject<OnlineMembersPayload>({
+    userIds: [],
+    count: 0,
+  });
+  onlineMembersStream = this.onlineMembersSubject.asObservable();
+
   constructor() {
     this.socket.on('chat:message', (data: MessageDTO) => {
       this.messageStreamSubject.next(data);
+    });
+
+    this.socket.on('members:online', (payload: OnlineMembersPayload) => {
+      this.onlineMembersSubject.next(payload);
     });
   }
 
