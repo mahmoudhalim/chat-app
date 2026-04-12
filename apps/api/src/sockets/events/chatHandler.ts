@@ -4,7 +4,8 @@ import { type MessageDTO } from "@shared/models";
 export const message = (socket: any) => {
   socket.on("chat:message", async (data: MessageDTO) => {
     try {
-      const messageDocument = await (await Message.create(data)).populate("sender");
+      const senderId = typeof data.sender === "string" ? data.sender : data.sender.id;
+      const messageDocument = await (await Message.create({ ...data, sender: senderId })).populate("sender");
       
       socket.to(data.channel).emit("chat:message", messageDocument.toJSON());
     } catch (error) {
