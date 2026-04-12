@@ -6,6 +6,7 @@ interface UserDocument extends Document {
   username: string;
   email: string;
   password: string;
+  profilePhoto?: string;
   comparePassword(password: string): Promise<boolean>;
 }
 const userSchema = new Schema<UserDocument>({
@@ -22,6 +23,10 @@ const userSchema = new Schema<UserDocument>({
   password: {
     type: String,
     required: true,
+  },
+  profilePhoto: {
+    type: String,
+    required: false,
   },
 }, { timestamps: true });
 

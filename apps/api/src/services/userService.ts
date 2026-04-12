@@ -1,10 +1,15 @@
 import { User, type UserDocument } from "@models/userModel";
 import { ConflictError, NotFoundError } from "@utils/customErrors";
 import { isMongoDuplicateKeyError } from "@utils/mongoErrors";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 import type {
   CreateUserInput,
   UpdateUserInput,
 } from "@validators/userValidator";
+
+const uploadsDir = fileURLToPath(new URL("../../uploads", import.meta.url));
 
 const getAll = async (): Promise<UserDocument[]> => {
   const users = await User.find();
@@ -51,6 +56,18 @@ const update = async (
     const usernameOwner = await User.findOne({ username: data.username });
     if (usernameOwner && usernameOwner.id !== id) {
       throw new ConflictError("Username already in use");
+    }
+  }
+
+  if (data.profilePhoto && existing.profilePhoto && data.profilePhoto !== existing.profilePhoto) {
+    if (existing.profilePhoto.startsWith("/api/uploads/")) {
+      const filename = existing.profilePhoto.replace("/api/uploads/", "");
+      const filePath = path.join(uploadsDir, filename);
+      try {
+        await fs.unlink(filePath);
+      } catch (err) {
+        console.error(`Failed to delete old profile photo: ${filePath}`, err);
+      }
     }
   }
 

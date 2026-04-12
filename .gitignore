@@ -1,4 +1,5 @@
 node_modules
 .env
 apps/api/build
+apps/api/uploads
 .vscode/

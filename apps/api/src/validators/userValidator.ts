@@ -24,6 +24,7 @@ const updateUserSchema = z
   .object({
     username: usernameSchema.optional(),
     email: emailSchema.optional(),
+    profilePhoto: z.string().trim().optional(),
     password: z
       .string()
       .min(6, "Password must be at least 6 characters")
