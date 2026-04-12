@@ -26,11 +26,11 @@ const createServer = async (name: string, ownerId: string): Promise<ServerDocume
 };
 
 const getUserServers = async (userId: string): Promise<ServerDocument[]> => {
-  return Server.find({ "members.userId": userId }).populate("ownerId", "username avatarUrl");
+  return Server.find({ "members.userId": userId }).populate("ownerId", "username profilePhoto");
 };
 
 const getServerById = async (serverId: string): Promise<ServerDocument> => {
-  const server = await Server.findById(serverId).populate("members.userId", "username avatarUrl status");
+  const server = await Server.findById(serverId).populate("members.userId", "username profilePhoto");
   if (!server) {
     throw new NotFoundError("Server not found");
   }
