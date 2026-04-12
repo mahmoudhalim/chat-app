@@ -33,6 +33,14 @@ export class AuthAPI {
     return this.http.post<User>(`${this.usersUrl}`, userData);
   }
 
+  updateProfile(userId: string, profileData: FormData): Observable<User> {
+    return this.http.put<User>(`${this.usersUrl}/${userId}`, profileData).pipe(
+      tap((updatedUser) => {
+        this.currentUser.set(updatedUser);
+      })
+    );
+  }
+
   logout(): Observable<any> {
     return this.http.post(`${this.baseUrl}/logout`, {}).pipe(
       tap(() => {

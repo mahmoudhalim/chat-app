@@ -9,6 +9,7 @@ type MemberView = {
   id: string;
   username: string;
   isOnline: boolean;
+  profilePhoto?: string;
 };
 
 @Component({
@@ -53,10 +54,12 @@ export class MemberList {
         const user = member.userId as string | User;
         const id = typeof user === 'string' ? user : user.id;
         const username = typeof user === 'string' ? 'Unknown User' : user.username;
+        const profilePhoto = typeof user === 'string' ? undefined : user.profilePhoto;
 
         return {
           id,
           username,
+          profilePhoto,
           isOnline: onlineMemberSet.has(id),
         };
       });
@@ -71,5 +74,19 @@ export class MemberList {
 
   protected getInitials(username: string): string {
     return username.trim().slice(0, 2).toUpperCase();
+  }
+
+  protected getProfilePhotoSrc(profilePhoto: string | undefined): string | null {
+    if (!profilePhoto) {
+      return null;
+    }
+    if (
+      profilePhoto.startsWith('http://') ||
+      profilePhoto.startsWith('https://') ||
+      profilePhoto.startsWith('/')
+    ) {
+      return profilePhoto;
+    }
+    return `/api/uploads/${profilePhoto}`;
   }
 }

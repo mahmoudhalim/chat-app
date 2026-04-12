@@ -3,11 +3,13 @@
 export type User = {
   id: string;
   username: string;
+  email?: string;
+  profilePhoto?: string;
 };
 
 export type MessageDTO = {
   id: string;
-  sender: string; 
+  sender: User | string; 
   channel: string; 
   text: string;
   createdAt?: Date | string;

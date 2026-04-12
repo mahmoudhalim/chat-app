@@ -1,0 +1,25 @@
+<!-- Server Header -->
+<div
+  class="h-12 px-4 flex items-center justify-between border-b border-[#1f2023] cursor-pointer transition-colors hover:bg-discord-700"
+>
+  <h2 class="text-base font-semibold text-[#f2f3f5]">{{ serverResource.value()?.name }}</h2>
+  <span>&#x2304;</span>
+</div>
+
+<!-- Channel List -->
+<div class="mt-4 flex-1 overflow-y-auto">
+  @for (channel of channelResource.value(); track channel.id) {
+    <a
+      [routerLink]="['/dashboard', serverId(), channel.id]"
+      routerLinkActive="bg-discord-600 !text-white"
+      class="flex items-center mx-2 px-2 py-1.5 rounded text-discord-300 cursor-pointer hover:bg-discord-700 hover:text-discord-100 mt-0.5"
+    >
+      @if (channel.type === 'text') {
+        <span class="mr-2 text-lg opacity-60"><fa-icon icon="hashtag"></fa-icon></span>
+      } @else {
+        <span class="mr-2 text-lg opacity-60"><fa-icon icon="volume-high"></fa-icon></span>
+      }
+      <span class="truncate">{{ channel.name }}</span>
+    </a>
+  }
+</div>

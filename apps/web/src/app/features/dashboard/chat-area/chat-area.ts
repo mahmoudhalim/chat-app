@@ -96,7 +96,7 @@ export class ChatArea {
     const optimisticMessage: MessageDTO = {
       id: `temp-${Date.now()}`,
       channel: channelId,
-      sender: { id: currentUser.id, username: currentUser.username } as unknown as string,
+      sender: { id: currentUser.id, username: currentUser.username, profilePhoto: currentUser.profilePhoto },
       text,
       createdAt: formatMessageDate(new Date()),
       updatedAt: formatMessageDate(new Date()),
@@ -155,5 +155,32 @@ export class ChatArea {
       top: messagesContainer.scrollHeight,
       behavior: 'smooth',
     });
+  }
+
+  protected getInitials(username: string): string {
+    if (!username) return 'U';
+    return username.trim().slice(0, 2).toUpperCase();
+  }
+
+  protected getSenderUsername(message: MessageDTO): string {
+    return typeof message.sender === 'string' ? 'Unknown User' : message.sender.username;
+  }
+
+  protected getSenderProfilePhoto(message: MessageDTO): string | undefined {
+    return typeof message.sender === 'string' ? undefined : message.sender.profilePhoto;
+  }
+
+  protected getProfilePhotoSrc(profilePhoto: string | undefined): string | null {
+    if (!profilePhoto) {
+      return null;
+    }
+    if (
+      profilePhoto.startsWith('http://') ||
+      profilePhoto.startsWith('https://') ||
+      profilePhoto.startsWith('/')
+    ) {
+      return profilePhoto;
+    }
+    return `/api/uploads/${profilePhoto}`;
   }
 }
