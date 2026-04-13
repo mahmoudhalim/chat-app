@@ -37,7 +37,12 @@ export class ServerList implements OnInit {
 
   ngOnInit(): void {
     this.serverAPI.getServerList().subscribe((servers) => {
-      this.servers.set(servers)
+      this.servers.set(servers);
+      
+      // Auto-navigate to the first server if no server is currently selected in the route
+      if (servers.length > 0 && this.router.url === '/dashboard') {
+        this.router.navigate(['/dashboard', servers[0].id]);
+      }
     });
   }
 
