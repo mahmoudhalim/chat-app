@@ -1,12 +1,18 @@
 import { Injectable } from '@angular/core';
 import { io, Socket } from 'socket.io-client';
-import { MessageDTO } from '@shared/models';
+import { MessageDTO, User } from '@shared/models';
 import { BehaviorSubject, Subject } from 'rxjs';
 
 type OnlineMembersPayload = {
   userIds: string[];
   count: number;
 };
+
+type VoiceStatePayload = {
+  channelId: string;
+  users: string[];
+};
+
 @Injectable({
   providedIn: 'root',
 })
@@ -24,6 +30,9 @@ export class socketService {
   });
   onlineMembersStream = this.onlineMembersSubject.asObservable();
 
+  private voiceStateSubject = new Subject<VoiceStatePayload>();
+  voiceStateStream = this.voiceStateSubject.asObservable();
+
   constructor() {
     this.socket.on('chat:message', (data: MessageDTO) => {
       this.messageStreamSubject.next(data);
@@ -31,6 +40,10 @@ export class socketService {
 
     this.socket.on('members:online', (payload: OnlineMembersPayload) => {
       this.onlineMembersSubject.next(payload);
+    });
+
+    this.socket.on('voice:state_update', (payload: VoiceStatePayload) => {
+      this.voiceStateSubject.next(payload);
     });
   }
 
@@ -62,4 +75,10 @@ export class socketService {
     this.ensureConnected();
     this.socket.emit('chat:message', data);
   }
+
+  syncVoice(channelId: string) {
+    this.ensureConnected();
+    this.socket.emit('voice:sync_request', { channelId });
+  }
 }
+
