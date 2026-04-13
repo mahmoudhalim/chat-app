@@ -1,4 +1,4 @@
-import { Component, computed, ElementRef, inject, input, linkedSignal, viewChild } from '@angular/core';
+import { Component, computed, ElementRef, inject, input, linkedSignal, viewChild, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { rxResource, takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Channel, ChannelResponse, MessageDTO } from '@shared/models';
@@ -7,12 +7,14 @@ import { ChannelAPI } from 'src/app/core/services/channel-api';
 import { socketService } from 'src/app/core/services/socket-service';
 import { formatMessageDate, normalizeMessageDates } from 'src/app/core/utils/message-date';
 import { AuthAPI } from 'src/app/features/auth/services/auth-api';
+import 'emoji-picker-element';
 
 @Component({
   selector: 'app-chat-area',
   imports: [FontAwesomeModule],
   templateUrl: './chat-area.html',
   styleUrl: './chat-area.css',
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class ChatArea {
   private readonly channelAPI = inject(ChannelAPI);
@@ -74,9 +76,32 @@ export class ChatArea {
 
   messages = computed<MessageDTO[]>(() => this.chatResource.value()?.messages ?? []);
   channel = computed<Channel | null>(() => {
-
     return this.chatResource.value()?.channel ?? null
   });
+
+  protected isEmojiPickerOpen = false;
+
+  toggleEmojiPicker() {
+    this.isEmojiPickerOpen = !this.isEmojiPickerOpen;
+  }
+
+  onEmojiSelect(event: Event, input: HTMLInputElement) {
+    const customEvent = event as CustomEvent;
+    const emoji = customEvent.detail.unicode;
+
+    if (emoji) {
+      const start = input.selectionStart || input.value.length;
+      const end = input.selectionEnd || input.value.length;
+
+      input.value = input.value.substring(0, start) + emoji + input.value.substring(end);
+
+      // Keep focus and restore selection after the emoji
+      setTimeout(() => {
+        input.focus();
+        input.setSelectionRange(start + emoji.length, start + emoji.length);
+      }, 0);
+    }
+  }
 
   sendMessage(input: HTMLInputElement) {
     const text = input.value.trim();
@@ -86,6 +111,8 @@ export class ChatArea {
     if (!text || !channelId || !currentUser?.id) {
       return;
     }
+
+    this.isEmojiPickerOpen = false;
 
     const message = {
       channel: channelId,
