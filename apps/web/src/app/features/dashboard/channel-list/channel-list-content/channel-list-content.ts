@@ -44,6 +44,7 @@ export class ChannelListContent {
   });
 
   private readonly createChannelModalRef = viewChild<ElementRef<HTMLDialogElement>>('createChannelModal');
+  private readonly inviteModalRef = viewChild<ElementRef<HTMLDialogElement>>('inviteModal');
 
   protected createChannelForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
@@ -52,6 +53,7 @@ export class ChannelListContent {
 
   protected isCreatingChannel = false;
   protected showErrorToast = false;
+  protected showSuccessToast = false;
   protected toastMessage = '';
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -91,6 +93,22 @@ export class ChannelListContent {
     this.createChannelModalRef()?.nativeElement.showModal();
   }
 
+  protected openInviteModal(): void {
+    if (!this.isServerOwner()) return;
+    this.inviteModalRef()?.nativeElement.showModal();
+  }
+
+  protected copyInviteCode(): void {
+    const inviteCode = this.serverResource.value()?.inviteCode;
+    if (inviteCode) {
+      navigator.clipboard.writeText(inviteCode).then(() => {
+        this.showToast('Invite code copied to clipboard!', true);
+      }).catch(() => {
+        this.showToast('Failed to copy invite code.', false);
+      });
+    }
+  }
+
   protected onCreateChannel(): void {
     if (this.createChannelForm.invalid || this.isCreatingChannel) {
       this.createChannelForm.markAllAsTouched();
@@ -112,14 +130,15 @@ export class ChannelListContent {
       error: (error) => {
         this.isCreatingChannel = false;
         const message = error?.error?.message || 'Failed to create channel';
-        this.showToast(message);
+        this.showToast(message, false);
       },
     });
   }
 
-  private showToast(message: string): void {
+  private showToast(message: string, success: boolean): void {
     this.toastMessage = message;
-    this.showErrorToast = true;
+    this.showErrorToast = !success;
+    this.showSuccessToast = success;
 
     if (this.toastTimer) {
       clearTimeout(this.toastTimer);
@@ -127,6 +146,7 @@ export class ChannelListContent {
 
     this.toastTimer = setTimeout(() => {
       this.showErrorToast = false;
+      this.showSuccessToast = false;
       this.toastMessage = '';
       this.toastTimer = null;
     }, 3000);
