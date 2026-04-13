@@ -10,19 +10,25 @@
 
   <!-- Add Server Button -->
   <div class="relative w-12 h-12 flex items-center justify-center cursor-pointer group mt-2" (click)="openCreateServerModal()">
-    <div class="w-12 h-12 rounded-3xl bg-discord-800 text-discord-green flex items-center justify-center font-bold text-2xl transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-discord-green group-hover:text-white">
-      <span>+</span>
+    <div class="w-12 h-12 rounded-3xl bg-discord-800 text-discord-green flex items-center justify-center font-bold text-xl transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-discord-green group-hover:text-white">
+      <fa-icon icon="plus"/>
+    </div>
+  </div>
+  <!-- Join Server Button -->
+  <div class="relative w-12 h-12 flex items-center justify-center cursor-pointer group mt-2" (click)="openJoinServerModal()">
+    <div class="w-12 h-12 rounded-3xl bg-discord-800 text-discord-green flex items-center justify-center font-bold text-xl transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-discord-green group-hover:text-white">
+      <fa-icon icon="right-to-bracket"/>
     </div>
   </div>
 </div>
 
 <dialog #createServerModal class="modal">
-  <div class="modal-box w-11/12 max-w-md bg-discord-850 text-[#f2f3f5] border border-[#1f2023] p-6 text-center shadow-xl">
+  <div class="modal-box w-11/12 max-w-md bg-discord-850 text-[#f2f3f5] border border-[#1f2023] p-6 text-center shadow-xl overflow-hidden">
     <h3 class="text-2xl font-bold mb-2">Customize your server</h3>
     <p class="text-sm text-discord-300 mb-6">Give your new server a personality with a name. You can always change it later.</p>
 
-    <form [formGroup]="createServerForm" (ngSubmit)="onCreateServer()" class="space-y-4 text-left">
-      <div>
+    <form [formGroup]="createServerForm" (ngSubmit)="onCreateServer()" class="space-y-4 text-left flex flex-col min-h-[160px]">
+      <div class="flex-1">
         <label class="block text-xs font-semibold uppercase tracking-wide text-discord-300 mb-2">
           Server Name
         </label>
@@ -41,15 +47,53 @@
         }
       </div>
 
-      <div class="modal-action bg-[#2b2d31] -mx-6 -mb-6 px-6 py-4 flex justify-between items-center rounded-b-box mt-8">
-        <form method="dialog" class="m-0">
+      <div class="modal-action bg-[#2b2d31] -mx-6 -mb-6 px-6 py-4 flex flex-col items-stretch mt-auto">
+        <div class="flex justify-between items-center w-full">
           <button class="btn btn-ghost hover:bg-transparent hover:underline text-[#f2f3f5]" type="button" (click)="createServerModal.close()">Cancel</button>
-        </form>
-        <button type="submit" class="btn bg-discord-500 hover:bg-discord-600 text-white border-none w-24 rounded" [disabled]="isCreatingServer">
-          @if (isCreatingServer) {
+          <button type="submit" class="btn bg-discord-500 hover:bg-discord-600 text-white border-none w-24 rounded" [disabled]="isCreatingServer">
+            @if (isCreatingServer) {
+              <span class="loading loading-spinner loading-xs"></span>
+            } @else {
+              Create
+            }
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<dialog #joinServerModal class="modal">
+  <div class="modal-box w-11/12 max-w-md bg-discord-850 text-[#f2f3f5] border border-[#1f2023] p-6 text-center shadow-xl overflow-hidden">
+    <h3 class="text-2xl font-bold mb-2">Join a Server</h3>
+    <p class="text-sm text-discord-300 mb-6">Enter an invite below to join an existing server</p>
+
+    <form [formGroup]="joinServerForm" (ngSubmit)="onJoinServer()" class="space-y-4 text-left flex flex-col min-h-[160px]">
+      <div class="flex-1">
+        <label class="block text-xs font-semibold uppercase tracking-wide text-discord-300 mb-2">
+          Invite Code
+        </label>
+        <input
+          type="text"
+          class="input w-full bg-[#1e1f22] text-[#f2f3f5] border-none focus:ring-0 rounded focus:outline-none"
+          formControlName="inviteCode"
+          placeholder="e.g. a8b9c0d1"
+        />
+        @if (joinServerForm.controls.inviteCode.touched && joinServerForm.controls.inviteCode.hasError('required')) {
+          <p class="text-xs text-red-400 mt-1 italic">Invite code is required.</p>
+        }
+      </div>
+
+      <div class="modal-action bg-[#2b2d31] -mx-6 -mb-6 px-6 py-4 flex justify-between items-center rounded-b-box mt-auto">
+        <button class="btn btn-ghost hover:bg-transparent hover:underline text-[#f2f3f5]" type="button" (click)="joinServerModal.close()">Cancel</button>
+        <button type="submit" class="btn bg-discord-green hover:bg-[#1f8c54] text-white border-none w-32 rounded" [disabled]="isJoiningServer">
+          @if (isJoiningServer) {
             <span class="loading loading-spinner loading-xs"></span>
           } @else {
-            Create
+            Join Server
           }
         </button>
       </div>

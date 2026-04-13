@@ -31,4 +31,10 @@ export class ServerAPI {
       map(response => response.server)
     );
   }
+
+  joinServer(inviteCode: string): Observable<Server> {
+    return this.http.post<{ server: Server }>('/api/servers/join', { inviteCode }).pipe(
+      map(response => response.server)
+    );
+  }
 }
