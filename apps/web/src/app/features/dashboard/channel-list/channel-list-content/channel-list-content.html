@@ -9,17 +9,43 @@
 <!-- Channel List -->
 <div class="mt-4 flex-1 overflow-y-auto">
   @for (channel of channelResource.value(); track channel.id) {
-    <a
-      [routerLink]="['/dashboard', serverId(), channel.id]"
-      routerLinkActive="bg-discord-600 !text-white"
-      class="flex items-center mx-2 px-2 py-1.5 rounded text-discord-300 cursor-pointer hover:bg-discord-700 hover:text-discord-100 mt-0.5"
-    >
-      @if (channel.type === 'text') {
+    @if (channel.type === 'text') {
+      <a
+        [routerLink]="['/dashboard', serverId(), channel.id]"
+        routerLinkActive="bg-discord-600 !text-white"
+        class="flex items-center mx-2 px-2 py-1.5 rounded text-discord-300 cursor-pointer hover:bg-discord-700 hover:text-discord-100 mt-0.5"
+      >
         <span class="mr-2 text-lg opacity-60"><fa-icon icon="hashtag"></fa-icon></span>
-      } @else {
+        <span class="truncate">{{ channel.name }}</span>
+      </a>
+    } @else {
+      <div
+        (click)="onChannelClick($event, channel)"
+        [class.bg-discord-600]="voiceService.currentChannelId() === channel.id"
+        [class.!text-white]="voiceService.currentChannelId() === channel.id"
+        class="flex items-center mx-2 px-2 py-1.5 rounded text-discord-300 cursor-pointer hover:bg-discord-700 hover:text-discord-100 mt-0.5"
+      >
         <span class="mr-2 text-lg opacity-60"><fa-icon icon="volume-high"></fa-icon></span>
+        <span class="truncate">{{ channel.name }}</span>
+      </div>
+      @if (channel.voiceParticipants && channel.voiceParticipants.length > 0) {
+        <div class="ml-8 mt-1 flex flex-col space-y-0.5 mb-2">
+          @for (userId of channel.voiceParticipants; track userId) {
+            @if (getVoiceUser(userId); as user) {
+              <div class="flex items-center space-x-2 px-2 py-1 rounded hover:bg-discord-700 cursor-pointer">
+                @if (getProfilePhotoSrc(user.profilePhoto)) {
+                  <img [src]="getProfilePhotoSrc(user.profilePhoto)" class="w-6 h-6 rounded-full object-cover">
+                } @else {
+                  <div class="w-6 h-6 rounded-full bg-discord-500 flex items-center justify-center text-[10px] text-white font-semibold">
+                    {{ getInitials(user.username) }}
+                  </div>
+                }
+                <span class="text-sm text-discord-300 truncate">{{ user.username }}</span>
+              </div>
+            }
+          }
+        </div>
       }
-      <span class="truncate">{{ channel.name }}</span>
-    </a>
+    }
   }
 </div>

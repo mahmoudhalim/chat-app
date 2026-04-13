@@ -2,6 +2,7 @@ import { Component, ElementRef, inject, OnDestroy, viewChild } from '@angular/co
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthAPI } from 'src/app/features/auth/services/auth-api';
+import { VoiceService } from 'src/app/core/services/voice.service';
 
 @Component({
   selector: 'app-channel-user-controls',
@@ -12,6 +13,8 @@ import { AuthAPI } from 'src/app/features/auth/services/auth-api';
 export class ChannelUserControls implements OnDestroy {
   private readonly fb = inject(NonNullableFormBuilder);
   protected readonly authAPI = inject(AuthAPI);
+  protected readonly voiceService = inject(VoiceService);
+
   private readonly profileModalRef = viewChild<ElementRef<HTMLDialogElement>>('profileModal');
   private readonly profilePhotoInputRef = viewChild<ElementRef<HTMLInputElement>>('profilePhotoInput');
 

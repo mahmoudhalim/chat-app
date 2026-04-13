@@ -1,3 +1,25 @@
+<!-- Voice Connection Panel -->
+@if (voiceService.connectionState() !== 'disconnected') {
+  <div class="bg-[#292b2f] border-b border-[#1f2023] px-2 py-2 flex flex-col shrink-0 text-sm">
+    <div class="flex items-center justify-between text-discord-green font-semibold mb-1">
+      <div class="flex items-center">
+        <fa-icon icon="signal" class="mr-2"></fa-icon>
+        <span>Voice Connected</span>
+      </div>
+      <button
+        class="text-discord-300 hover:text-discord-100 p-1 rounded hover:bg-discord-700 leading-none"
+        (click)="voiceService.leave()"
+        title="Disconnect"
+      >
+        <fa-icon icon="phone-slash"></fa-icon>
+      </button>
+    </div>
+    <div class="text-discord-300 text-xs truncate">
+      {{ voiceService.currentChannelName() }}
+    </div>
+  </div>
+}
+
 <!-- User Controls -->
 <div class="mt-auto h-13 bg-[#232428] px-2 flex items-center justify-between shrink-0">
   <div
@@ -27,16 +49,34 @@
   </div>
 
   <div class="flex">
-    <span
-      class="p-2 rounded cursor-pointer text-discord-200 hover:bg-discord-700 hover:text-discord-100 leading-none"
-      ><fa-icon icon="microphone" /></span
+    <button
+      class="p-2 rounded cursor-pointer leading-none relative"
+      [class.text-discord-200]="!voiceService.isMuted()"
+      [class.text-red-500]="voiceService.isMuted()"
+      [class.hover:bg-discord-700]="true"
+      [class.hover:text-discord-100]="!voiceService.isMuted()"
+      (click)="voiceService.toggleMute()"
     >
-    <span
-      class="p-2 rounded cursor-pointer text-discord-200 hover:bg-discord-700 hover:text-discord-100 leading-none"
-      ><fa-icon icon="headphones" /></span
+      <fa-icon [icon]="voiceService.isMuted() ? 'microphone-slash' : 'microphone'"></fa-icon>
+    </button>
+    <button
+      class="p-2 rounded cursor-pointer leading-none relative"
+      [class.text-discord-200]="!voiceService.isDeafened()"
+      [class.text-red-500]="voiceService.isDeafened()"
+      [class.hover:bg-discord-700]="true"
+      [class.hover:text-discord-100]="!voiceService.isDeafened()"
+      (click)="voiceService.toggleDeafen()"
     >
+      <fa-icon icon="headphones"></fa-icon>
+      @if (voiceService.isDeafened()) {
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="w-5 h-0.5 bg-red-500 rotate-45"></div>
+        </div>
+      }
+    </button>
     <span
       class="p-2 rounded cursor-pointer text-discord-200 hover:bg-discord-700 hover:text-discord-100 leading-none"
+      (click)="openProfileModal()"
       ><fa-icon icon="gear"/></span
     >
   </div>
