@@ -3,6 +3,7 @@ import { extractBearerToken, verifyAccessToken } from "@middlewares/requireAuth"
 import { Server as ServerModel } from "@models/serverModel";
 import { Channel } from "@models/channelModel";
 import { message } from "./events/chatHandler";
+import { voiceHandler } from "./events/voiceHandler";
 
 const onlineSocketsByUserId = new Map<string, Set<string>>();
 
@@ -59,6 +60,10 @@ const joinUserChannels = async (socket: any) => {
   socket.join(channels.map((channel) => channel.id));
 };
 
+let ioInstance: Server | null = null;
+
+export const getIoInstance = () => ioInstance;
+
 export const initSocket = (server: any) => {
   const io = new Server(server, {
     connectionStateRecovery: {},
@@ -66,6 +71,8 @@ export const initSocket = (server: any) => {
       origin: "*",
     },
   });
+  
+  ioInstance = io;
 
   io.use((socket, next) => {
     const authToken = socket.handshake.auth.token ?? null;
@@ -90,6 +97,7 @@ export const initSocket = (server: any) => {
     }
 
     message(socket);
+    voiceHandler(io, socket);
 
     try {
       await joinUserChannels(socket);
@@ -110,3 +118,5 @@ export const initSocket = (server: any) => {
 
   return io;
 };
+
+

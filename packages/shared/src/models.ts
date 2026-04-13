@@ -38,6 +38,7 @@ export type Channel = {
   name: string;
   type: ChannelType;
   createdAt: Date;
+  voiceParticipants?: string[];
 };
 export interface ChannelResponse {
   channel: Channel;
