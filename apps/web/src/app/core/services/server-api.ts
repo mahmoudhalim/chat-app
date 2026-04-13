@@ -26,4 +26,9 @@ export class ServerAPI {
     );
   }
 
+  createServer(name: string): Observable<Server> {
+    return this.http.post<{ server: Server }>('/api/servers', { name }).pipe(
+      map(response => response.server)
+    );
+  }
 }

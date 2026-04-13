@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { faGear, faHashtag, faHeadphones, faMicrophone, faVolumeHigh, faBell, faThumbtack, faUsers, faGift, faFaceSmile, faSignal, faPhoneSlash, faMicrophoneSlash } from '@fortawesome/free-solid-svg-icons';
+import { faGear, faHashtag, faHeadphones, faMicrophone, faVolumeHigh, faBell, faThumbtack, faUsers, faGift, faFaceSmile, faSignal, faPhoneSlash, faMicrophoneSlash, faPlus, faPen, faRightFromBracket } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
   selector: 'app-root',
@@ -24,7 +24,10 @@ export class App {
       faFaceSmile,
       faSignal,
       faPhoneSlash,
-      faMicrophoneSlash
+      faMicrophoneSlash,
+      faPlus,
+      faPen,
+      faRightFromBracket
     );
   }
 }
