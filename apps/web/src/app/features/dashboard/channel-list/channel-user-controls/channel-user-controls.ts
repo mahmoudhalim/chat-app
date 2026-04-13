@@ -1,5 +1,6 @@
 import { Component, ElementRef, inject, OnDestroy, viewChild } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthAPI } from 'src/app/features/auth/services/auth-api';
 import { VoiceService } from 'src/app/core/services/voice.service';
@@ -12,6 +13,7 @@ import { VoiceService } from 'src/app/core/services/voice.service';
 })
 export class ChannelUserControls implements OnDestroy {
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly router = inject(Router);
   protected readonly authAPI = inject(AuthAPI);
   protected readonly voiceService = inject(VoiceService);
 
@@ -26,6 +28,7 @@ export class ChannelUserControls implements OnDestroy {
   protected profilePhotoFile: File | null = null;
   protected profilePhotoFileName = '';
   protected isSavingProfile = false;
+  protected isLoggingOut = false;
   protected showSuccessToast = false;
   protected showErrorToast = false;
   protected toastMessage = '';
@@ -156,6 +159,26 @@ export class ChannelUserControls implements OnDestroy {
     }
 
     return `/api/uploads/${profilePhoto}`;
+  }
+
+  protected logout(): void {
+    if (this.isLoggingOut) return;
+    this.isLoggingOut = true;
+
+    if (this.voiceService.connectionState() !== 'disconnected') {
+      this.voiceService.leave();
+    }
+
+    this.authAPI.logout().subscribe({
+      next: () => {
+        this.isLoggingOut = false;
+        this.router.navigate(['/login']);
+      },
+      error: () => {
+        this.isLoggingOut = false;
+        this.showToast('Failed to logout', 'error');
+      },
+    });
   }
 
   ngOnDestroy(): void {

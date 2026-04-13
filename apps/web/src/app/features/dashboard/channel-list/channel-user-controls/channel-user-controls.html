@@ -22,9 +22,10 @@
 
 <!-- User Controls -->
 <div class="mt-auto h-13 bg-[#232428] px-2 flex items-center justify-between shrink-0">
-  <div
-    class="flex items-center p-1 rounded cursor-pointer hover:bg-discord-700"
-    (click)="openProfileModal()"
+  <button
+    class="flex items-center p-1 rounded cursor-pointer hover:bg-discord-700 text-left bg-transparent border-none outline-none focus:outline-none"
+    popovertarget="user-controls-dropdown"
+    style="anchor-name:--user-controls-anchor"
   >
     @if (getCurrentUserPhotoSrc(); as photoSrc) {
       <img
@@ -46,7 +47,7 @@
       </div>
       <div class="text-xs text-discord-300 leading-tight">Online</div>
     </div>
-  </div>
+  </button>
 
   <div class="flex">
     <button
@@ -74,13 +75,30 @@
         </div>
       }
     </button>
-    <span
-      class="p-2 rounded cursor-pointer text-discord-200 hover:bg-discord-700 hover:text-discord-100 leading-none"
-      (click)="openProfileModal()"
-      ><fa-icon icon="gear"/></span
+    <button
+      class="p-2 rounded cursor-pointer text-discord-200 hover:bg-discord-700 hover:text-discord-100 leading-none bg-transparent border-none outline-none focus:outline-none"
+      popovertarget="user-controls-dropdown"
     >
+      <fa-icon icon="gear"></fa-icon>
+    </button>
   </div>
 </div>
+
+<ul #userControlsDropdown class="dropdown menu w-52 rounded-box bg-[#2b2d31] border border-[#1f2023] shadow-md text-[#f2f3f5] mb-2"
+  popover id="user-controls-dropdown" style="position-anchor:--user-controls-anchor; position-area: top;">
+  <li>
+    <a (click)="openProfileModal(); userControlsDropdown.hidePopover()">
+      <fa-icon icon="pen" class="w-4"></fa-icon>
+      Edit Profile
+    </a>
+  </li>
+  <li>
+    <a (click)="logout(); userControlsDropdown.hidePopover()" class="text-red-400 hover:text-red-500 hover:bg-red-500/10 mt-1">
+      <fa-icon icon="right-from-bracket" class="w-4"></fa-icon>
+      Log Out
+    </a>
+  </li>
+</ul>
 
 <dialog #profileModal class="modal">
   <div class="modal-box w-11/12 max-w-lg bg-discord-850 text-[#f2f3f5] border border-[#1f2023]">
@@ -142,9 +160,9 @@
 
     <div class="modal-action">
       <form method="dialog">
-        <button class="btn btn-ghost">Cancel</button>
+        <button class="btn btn-ghost" [disabled]="isSavingProfile || isLoggingOut">Cancel</button>
       </form>
-      <button class="btn btn-primary" [disabled]="isSavingProfile || (profileForm.pristine && !profilePhotoFile)" (click)="saveProfile()">
+      <button class="btn btn-primary" [disabled]="isSavingProfile || isLoggingOut || (profileForm.pristine && !profilePhotoFile)" (click)="saveProfile()">
         @if (isSavingProfile) {
           <span class="loading loading-spinner loading-xs"></span>
           Saving...
