@@ -1,5 +1,6 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, ElementRef, inject, input, viewChild } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { of } from 'rxjs';
@@ -7,11 +8,12 @@ import { ChannelAPI } from 'src/app/core/services/channel-api';
 import { ServerAPI } from 'src/app/core/services/server-api';
 import { VoiceService } from 'src/app/core/services/voice.service';
 import { socketService } from 'src/app/core/services/socket-service';
+import { AuthAPI } from 'src/app/features/auth/services/auth-api';
 import { Channel } from '@shared/models';
 
 @Component({
   selector: 'app-channel-list-content',
-  imports: [FontAwesomeModule, RouterLink, RouterLinkActive],
+  imports: [FontAwesomeModule, RouterLink, RouterLinkActive, ReactiveFormsModule],
   templateUrl: './channel-list-content.html',
   styleUrl: './channel-list-content.css',
 })
@@ -22,6 +24,8 @@ export class ChannelListContent {
   private readonly serverAPI = inject(ServerAPI);
   protected readonly voiceService = inject(VoiceService);
   private readonly socketService = inject(socketService);
+  protected readonly authAPI = inject(AuthAPI);
+  private readonly fb = inject(NonNullableFormBuilder);
 
   protected channelResource = rxResource({
     params: () => this.serverId(),
@@ -39,6 +43,18 @@ export class ChannelListContent {
     },
   });
 
+  private readonly createChannelModalRef = viewChild<ElementRef<HTMLDialogElement>>('createChannelModal');
+
+  protected createChannelForm = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+    type: ['text' as 'text' | 'voice', [Validators.required]],
+  });
+
+  protected isCreatingChannel = false;
+  protected showErrorToast = false;
+  protected toastMessage = '';
+  private toastTimer: ReturnType<typeof setTimeout> | null = null;
+
   constructor() {
     this.socketService.voiceStateStream.subscribe((update) => {
       this.channelResource.update((channels) => {
@@ -48,6 +64,72 @@ export class ChannelListContent {
         );
       });
     });
+  }
+
+  protected isServerOwner(): boolean {
+    const currentUser = this.authAPI.currentUser();
+    const server = this.serverResource.value();
+    
+    if (!currentUser || !server) return false;
+    
+    // Handle both cases: when ownerId is populated (object) or just a string ID
+    const ownerId = typeof server.ownerId === 'string' ? server.ownerId : (server.ownerId as any)?.id || (server.ownerId as any)?._id;
+    
+    console.log('isServerOwner check:', { 
+      currentUserId: currentUser.id, 
+      serverOwnerId: ownerId,
+      rawServerOwnerId: server.ownerId,
+      isMatch: String(currentUser.id) === String(ownerId)
+    });
+    
+    return String(currentUser.id) === String(ownerId);
+  }
+
+  protected openCreateChannelModal(): void {
+    if (!this.isServerOwner()) return;
+    this.createChannelForm.reset({ name: '', type: 'text' });
+    this.createChannelModalRef()?.nativeElement.showModal();
+  }
+
+  protected onCreateChannel(): void {
+    if (this.createChannelForm.invalid || this.isCreatingChannel) {
+      this.createChannelForm.markAllAsTouched();
+      return;
+    }
+
+    const { name, type } = this.createChannelForm.getRawValue();
+    const sid = this.serverId();
+    if (!sid) return;
+
+    this.isCreatingChannel = true;
+
+    this.channelAPI.createChannel(sid, name, type).subscribe({
+      next: (newChannel) => {
+        this.isCreatingChannel = false;
+        this.channelResource.update((prev) => prev ? [...prev, newChannel] : [newChannel]);
+        this.createChannelModalRef()?.nativeElement.close();
+      },
+      error: (error) => {
+        this.isCreatingChannel = false;
+        const message = error?.error?.message || 'Failed to create channel';
+        this.showToast(message);
+      },
+    });
+  }
+
+  private showToast(message: string): void {
+    this.toastMessage = message;
+    this.showErrorToast = true;
+
+    if (this.toastTimer) {
+      clearTimeout(this.toastTimer);
+    }
+
+    this.toastTimer = setTimeout(() => {
+      this.showErrorToast = false;
+      this.toastMessage = '';
+      this.toastTimer = null;
+    }, 3000);
   }
 
   protected onChannelClick(event: Event, channel: Channel) {

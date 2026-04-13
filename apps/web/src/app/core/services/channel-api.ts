@@ -26,4 +26,10 @@ export class ChannelAPI {
       }))
     );
   }
+
+  createChannel(serverId: string, name: string, type: 'text' | 'voice'): Observable<Channel> {
+    return this.http.post<{ channel: Channel }>(`/api/servers/${serverId}/channels`, { name, type }).pipe(
+      map(response => response.channel)
+    );
+  }
 }
