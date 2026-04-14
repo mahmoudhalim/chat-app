@@ -42,6 +42,17 @@ const getChannelById: RequestHandler = async (req, res) => {
   return res.status(200).json({ channel, messages });
 };
 
+const updateChannel: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+  const channelId = req.params.id as string;
+  const { name } = req.body as { name: string };
+
+  const channel = await channelService.updateChannel(channelId, userId, name);
+  return res.status(200).json({ channel });
+};
+
 const deleteChannel: RequestHandler = async (req, res) => {
   const userId = req.userId;
   if (!userId) return res.status(401).json({ message: "Unauthorized" });
@@ -66,6 +77,7 @@ export default {
   createChannel,
   getServerChannels,
   getChannelById,
+  updateChannel,
   deleteChannel,
   getVoiceToken,
 };

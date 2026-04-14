@@ -32,4 +32,14 @@ export class ChannelAPI {
       map(response => response.channel)
     );
   }
+
+  updateChannel(channelId: string, name: string): Observable<Channel> {
+    return this.http.put<{ channel: Channel }>(`/api/channels/${channelId}`, { name }).pipe(
+      map(response => response.channel)
+    );
+  }
+
+  deleteChannel(channelId: string): Observable<void> {
+    return this.http.delete<void>(`/api/channels/${channelId}`);
+  }
 }

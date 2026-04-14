@@ -54,6 +54,22 @@ const getChannelById = async (channelId: string, userId: string): Promise<Channe
   return channel;
 };
 
+const updateChannel = async (channelId: string, userId: string, name: string): Promise<ChannelDocument> => {
+  const channel = await Channel.findById(channelId);
+  if (!channel) {
+    throw new NotFoundError("Channel not found");
+  }
+
+  const server = await Server.findOne({ _id: channel.serverId, ownerId: userId });
+  if (!server) {
+    throw new ForbiddenError("Server not found or you don't have permission");
+  }
+
+  channel.name = name;
+  await channel.save();
+  return channel;
+};
+
 const deleteChannel = async (channelId: string, userId: string): Promise<void> => {
   const channel = await Channel.findById(channelId);
   if (!channel) {
@@ -83,6 +99,7 @@ const getAllMessages = async (channelId: string, userId: string): Promise<Messag
 
 export default {
   createChannel,
+  updateChannel,
   getServerChannels,
   getChannelById,
   deleteChannel,

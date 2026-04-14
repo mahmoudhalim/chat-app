@@ -44,6 +44,8 @@ export class ChannelListContent {
   });
 
   private readonly createChannelModalRef = viewChild<ElementRef<HTMLDialogElement>>('createChannelModal');
+  private readonly editChannelModalRef = viewChild<ElementRef<HTMLDialogElement>>('editChannelModal');
+  private readonly deleteChannelModalRef = viewChild<ElementRef<HTMLDialogElement>>('deleteChannelModal');
   private readonly inviteModalRef = viewChild<ElementRef<HTMLDialogElement>>('inviteModal');
 
   protected createChannelForm = this.fb.group({
@@ -51,7 +53,15 @@ export class ChannelListContent {
     type: ['text' as 'text' | 'voice', [Validators.required]],
   });
 
+  protected editChannelForm = this.fb.group({
+    name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+  });
+
   protected isCreatingChannel = false;
+  protected isEditingChannel = false;
+  protected isDeletingChannel = false;
+  protected selectedChannel: Channel | null = null;
+
   protected showErrorToast = false;
   protected showSuccessToast = false;
   protected toastMessage = '';
@@ -71,19 +81,13 @@ export class ChannelListContent {
   protected isServerOwner(): boolean {
     const currentUser = this.authAPI.currentUser();
     const server = this.serverResource.value();
-    
+
     if (!currentUser || !server) return false;
-    
+
     // Handle both cases: when ownerId is populated (object) or just a string ID
     const ownerId = typeof server.ownerId === 'string' ? server.ownerId : (server.ownerId as any)?.id || (server.ownerId as any)?._id;
-    
-    console.log('isServerOwner check:', { 
-      currentUserId: currentUser.id, 
-      serverOwnerId: ownerId,
-      rawServerOwnerId: server.ownerId,
-      isMatch: String(currentUser.id) === String(ownerId)
-    });
-    
+
+
     return String(currentUser.id) === String(ownerId);
   }
 
@@ -96,6 +100,19 @@ export class ChannelListContent {
   protected openInviteModal(): void {
     if (!this.isServerOwner()) return;
     this.inviteModalRef()?.nativeElement.showModal();
+  }
+
+  protected openEditChannelModal(channel: Channel): void {
+    if (!this.isServerOwner()) return;
+    this.selectedChannel = channel;
+    this.editChannelForm.reset({ name: channel.name });
+    this.editChannelModalRef()?.nativeElement.showModal();
+  }
+
+  protected openDeleteChannelModal(channel: Channel): void {
+    if (!this.isServerOwner()) return;
+    this.selectedChannel = channel;
+    this.deleteChannelModalRef()?.nativeElement.showModal();
   }
 
   protected copyInviteCode(): void {
@@ -130,6 +147,49 @@ export class ChannelListContent {
       error: (error) => {
         this.isCreatingChannel = false;
         const message = error?.error?.message || 'Failed to create channel';
+        this.showToast(message, false);
+      },
+    });
+  }
+
+  protected onEditChannel(): void {
+    if (this.editChannelForm.invalid || this.isEditingChannel || !this.selectedChannel) {
+      this.editChannelForm.markAllAsTouched();
+      return;
+    }
+
+    const { name } = this.editChannelForm.getRawValue();
+    this.isEditingChannel = true;
+
+    this.channelAPI.updateChannel(this.selectedChannel.id, name).subscribe({
+      next: (updatedChannel) => {
+        this.isEditingChannel = false;
+        this.channelResource.update((prev) => prev?.map(c => c.id === updatedChannel.id ? { ...c, name: updatedChannel.name } : c) || []);
+        this.editChannelModalRef()?.nativeElement.close();
+      },
+      error: (error) => {
+        this.isEditingChannel = false;
+        const message = error?.error?.message || 'Failed to edit channel';
+        this.showToast(message, false);
+      },
+    });
+  }
+
+  protected onDeleteChannel(): void {
+    if (this.isDeletingChannel || !this.selectedChannel) return;
+
+    this.isDeletingChannel = true;
+    const channelId = this.selectedChannel.id;
+
+    this.channelAPI.deleteChannel(channelId).subscribe({
+      next: () => {
+        this.isDeletingChannel = false;
+        this.channelResource.update((prev) => prev?.filter(c => c.id !== channelId) || []);
+        this.deleteChannelModalRef()?.nativeElement.close();
+      },
+      error: (error) => {
+        this.isDeletingChannel = false;
+        const message = error?.error?.message || 'Failed to delete channel';
         this.showToast(message, false);
       },
     });
@@ -181,7 +241,7 @@ export class ChannelListContent {
   protected getVoiceUser(userId: string) {
     const server = this.serverResource.value();
     if (!server || !server.members) return null;
-    
+
     const member = server.members.find(m => {
       // Handle populated member (User object) or just string ID
       const mId = typeof m.userId === 'string' ? m.userId : (m.userId as any).id;
