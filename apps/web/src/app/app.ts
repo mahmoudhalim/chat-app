@@ -21,7 +21,12 @@ import {
   faRightToBracket,
   faUserPlus,
   faCopy,
-  faTrash
+  faTrash,
+  faFilePdf,
+  faFileImage,
+  faXmark,
+  faFile,
+  faCircleNotch
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -52,7 +57,12 @@ export class App {
       faRightToBracket,
       faUserPlus,
       faCopy,
-      faTrash
+      faTrash,
+      faFilePdf,
+      faFileImage,
+      faXmark,
+      faFile,
+      faCircleNotch
     );
   }
 }

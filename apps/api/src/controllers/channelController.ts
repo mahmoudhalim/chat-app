@@ -73,6 +73,23 @@ const getVoiceToken: RequestHandler = async (req, res) => {
     return res.status(200).json({ token, wsUrl: process.env.LIVEKIT_WS_URL || "ws://localhost:7880" });
 };
 
+const uploadAttachment: RequestHandler = async (req, res) => {
+  const userId = req.userId;
+  if (!userId) return res.status(401).json({ message: "Unauthorized" });
+
+  const { fileUrl, fileType, fileName } = req.body;
+
+  if (!fileUrl || !fileType || !fileName) {
+    return res.status(400).json({ message: "File upload failed" });
+  }
+
+  return res.status(200).json({
+    url: fileUrl,
+    type: fileType,
+    name: fileName,
+  });
+};
+
 export default {
   createChannel,
   getServerChannels,
@@ -80,5 +97,6 @@ export default {
   updateChannel,
   deleteChannel,
   getVoiceToken,
+  uploadAttachment,
 };
 

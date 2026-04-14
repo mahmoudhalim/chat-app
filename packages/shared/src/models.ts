@@ -11,7 +11,12 @@ export type MessageDTO = {
   id: string;
   sender: User | string; 
   channel: string; 
-  text: string;
+  text?: string;
+  attachment?: {
+    url: string;
+    type: 'image' | 'pdf';
+    name: string;
+  };
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };

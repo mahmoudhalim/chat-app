@@ -42,4 +42,10 @@ export class ChannelAPI {
   deleteChannel(channelId: string): Observable<void> {
     return this.http.delete<void>(`/api/channels/${channelId}`);
   }
+
+  uploadAttachment(channelId: string, file: File): Observable<{ url: string; type: 'image' | 'pdf'; name: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ url: string; type: 'image' | 'pdf'; name: string }>(`/api/channels/${channelId}/attachments`, formData);
+  }
 }

@@ -21,6 +21,7 @@ export class ChatArea {
   private readonly socketService = inject(socketService);
   private readonly authAPI = inject(AuthAPI);
   private readonly messagesContainerRef = viewChild<ElementRef<HTMLElement>>('messagesContainer');
+  private readonly fileInputRef = viewChild<ElementRef<HTMLInputElement>>('fileInput');
 
   channelId = input<string>();
   unreadCount = linkedSignal({
@@ -80,6 +81,23 @@ export class ChatArea {
   });
 
   protected isEmojiPickerOpen = false;
+  protected pendingAttachment: File | null = null;
+  protected isUploading = false;
+
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.pendingAttachment = input.files[0];
+    }
+  }
+
+  clearAttachment() {
+    this.pendingAttachment = null;
+    const fileInput = this.fileInputRef()?.nativeElement;
+    if (fileInput) {
+      fileInput.value = '';
+    }
+  }
 
   toggleEmojiPicker() {
     this.isEmojiPickerOpen = !this.isEmojiPickerOpen;
@@ -107,33 +125,63 @@ export class ChatArea {
     const text = input.value.trim();
     const channelId = this.channelId();
     const currentUser = this.authAPI.currentUser();
+    const attachment = this.pendingAttachment;
 
-    if (!text || !channelId || !currentUser?.id) {
+    if ((!text && !attachment) || !channelId || !currentUser?.id || this.isUploading) {
       return;
     }
 
     this.isEmojiPickerOpen = false;
 
-    const message = {
+    if (attachment) {
+      this.isUploading = true;
+      this.channelAPI.uploadAttachment(channelId, attachment).subscribe({
+        next: (response) => {
+          this.isUploading = false;
+          this.clearAttachment();
+          input.value = '';
+          this.dispatchMessage(text, channelId, currentUser, response);
+        },
+        error: (err) => {
+          this.isUploading = false;
+          console.error('Failed to upload attachment:', err);
+          // Optionally show toast error here
+        }
+      });
+    } else {
+      input.value = '';
+      this.dispatchMessage(text, channelId, currentUser);
+    }
+  }
+
+  private dispatchMessage(
+    text: string,
+    channelId: string,
+    currentUser: any,
+    attachment?: { url: string; type: 'image' | 'pdf'; name: string }
+  ) {
+    const message: any = {
       channel: channelId,
       sender: currentUser.id,
       text
     };
+
+    if (attachment) {
+      message.attachment = attachment;
+    }
 
     const optimisticMessage: MessageDTO = {
       id: `temp-${Date.now()}`,
       channel: channelId,
       sender: { id: currentUser.id, username: currentUser.username, profilePhoto: currentUser.profilePhoto },
       text,
+      attachment,
       createdAt: formatMessageDate(new Date()),
       updatedAt: formatMessageDate(new Date()),
     };
 
     this.chatResource.update((current) => {
-      if (!current) {
-        return current;
-      }
-
+      if (!current) return current;
       return {
         ...current,
         messages: [...current.messages, optimisticMessage],
@@ -145,10 +193,6 @@ export class ChatArea {
     });
 
     this.socketService.sendMessage(message);
-
-
-
-    input.value = '';
   }
 
   onMessagesScroll() {

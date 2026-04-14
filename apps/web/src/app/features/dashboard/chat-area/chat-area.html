@@ -45,7 +45,23 @@
               >
               <span class="text-xs text-discord-300">{{m.createdAt}}</span>
             </div>
-            <div class="text-base text-discord-100 leading-snug">{{m.text}}</div>
+            <div class="text-base text-discord-100 leading-snug">
+              @if (m.text) {
+                <div>{{m.text}}</div>
+              }
+              @if (m.attachment) {
+                <div class="mt-2">
+                  @if (m.attachment.type === 'image') {
+                    <img [src]="m.attachment.url" alt="Attachment" class="max-w-sm max-h-64 rounded-lg object-contain cursor-pointer">
+                  } @else if (m.attachment.type === 'pdf') {
+                    <a [href]="m.attachment.url" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 bg-[#2b2d31] hover:bg-[#313338] transition-colors rounded p-3 w-max border border-[#1e1f22]">
+                      <fa-icon icon="file-pdf" class="text-red-500 text-2xl"></fa-icon>
+                      <span class="text-blue-400 hover:underline">{{m.attachment.name}}</span>
+                    </a>
+                  }
+                </div>
+              }
+            </div>
           </div>
         </div>
       }
@@ -71,26 +87,59 @@
       </div>
     }
 
-    <div class="bg-[#383a40] rounded-lg flex items-center px-4 h-11">
-      <span
-        class="bg-discord-200 text-[#383a40] w-6 h-6 rounded-full flex items-center justify-center font-bold text-lg cursor-pointer mr-4 hover:bg-discord-100 shrink-0 transition-colors"
-        >+</span
-      >
+    <div class="bg-[#383a40] rounded-lg flex flex-col pt-1">
+      @if (pendingAttachment) {
+        <div class="px-4 pt-2 pb-1 flex items-center gap-3">
+          <div class="relative bg-[#2b2d31] rounded p-2 flex items-center gap-2 border border-[#1e1f22]">
+            <button class="absolute -top-2 -right-2 bg-discord-700 hover:bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-white text-xs shadow-md transition-colors" (click)="clearAttachment()">
+              <fa-icon icon="xmark"></fa-icon>
+            </button>
+            @if (pendingAttachment.type === 'application/pdf') {
+              <fa-icon icon="file-pdf" class="text-red-500 text-xl"></fa-icon>
+            } @else {
+              <fa-icon icon="file-image" class="text-green-500 text-xl"></fa-icon>
+            }
+            <span class="text-sm text-discord-100 max-w-[200px] truncate">{{ pendingAttachment.name }}</span>
+          </div>
+        </div>
+      }
+      
+      <div class="flex items-center px-4 h-11 pb-1">
+        <input 
+          #fileInput 
+          type="file" 
+          class="hidden" 
+          accept="image/*,application/pdf" 
+          (change)="onFileSelected($event)"
+        >
+        <button
+          class="bg-discord-200 text-[#383a40] w-6 h-6 rounded-full flex items-center justify-center font-bold text-lg cursor-pointer mr-4 hover:bg-discord-100 shrink-0 transition-colors disabled:opacity-50"
+          (click)="fileInput.click()"
+          [disabled]="isUploading"
+        >
+          @if (isUploading) {
+            <fa-icon icon="circle-notch" [spin]="true" class="text-sm"></fa-icon>
+          } @else {
+            +
+          }
+        </button>
 
-      <!-- Using generic input for Tailwind -->
-      <input
-        #messageInput
-        type="text"
-        placeholder="Message #general"
-        class="flex-1 bg-transparent border-none text-discord-100 text-base outline-none placeholder:text-[#72767d]"
-        (keydown.enter)="sendMessage(messageInput)"
-      />
+        <input
+          #messageInput
+          type="text"
+          placeholder="Message #general"
+          class="flex-1 bg-transparent border-none text-discord-100 text-base outline-none placeholder:text-[#72767d] disabled:opacity-50"
+          (keydown.enter)="sendMessage(messageInput)"
+          [disabled]="isUploading"
+        />
 
-      <div class="flex gap-3 text-discord-200 ml-2">
-        <span class="cursor-pointer text-xl hover:text-discord-100"
-          (click)="toggleEmojiPicker()"
-          ><fa-icon icon="face-smile"></fa-icon
-        ></span>
+        <div class="flex gap-3 text-discord-200 ml-2">
+          <button class="cursor-pointer text-xl hover:text-discord-100 disabled:opacity-50"
+            (click)="toggleEmojiPicker()"
+            [disabled]="isUploading"
+            ><fa-icon icon="face-smile"></fa-icon
+          ></button>
+        </div>
       </div>
     </div>
   </div>

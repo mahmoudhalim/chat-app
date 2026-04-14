@@ -1,6 +1,7 @@
 import { Router } from "express";
 import channelController from "@controllers/channelController";
 import requireAuth from "@middlewares/requireAuth";
+import uploadAttachmentMiddleware from "@middlewares/uploadAttachment";
 
 const channelRouter = Router();
 
@@ -10,5 +11,7 @@ channelRouter.get("/:id", channelController.getChannelById);
 channelRouter.get("/:id/voice-token", channelController.getVoiceToken);
 channelRouter.put("/:id", channelController.updateChannel);
 channelRouter.delete("/:id", channelController.deleteChannel);
+
+channelRouter.post("/:id/attachments", uploadAttachmentMiddleware, channelController.uploadAttachment);
 
 export default channelRouter;
