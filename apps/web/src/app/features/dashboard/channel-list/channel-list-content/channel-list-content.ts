@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, input, viewChild } from '@angular/core';
 import { rxResource } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { of } from 'rxjs';
 import { ChannelAPI } from 'src/app/core/services/channel-api';
 import { ServerAPI } from 'src/app/core/services/server-api';
@@ -26,6 +26,7 @@ export class ChannelListContent {
   private readonly socketService = inject(socketService);
   protected readonly authAPI = inject(AuthAPI);
   private readonly fb = inject(NonNullableFormBuilder);
+  private readonly router = inject(Router);
 
   protected channelResource = rxResource({
     params: () => this.serverId(),
@@ -47,6 +48,8 @@ export class ChannelListContent {
   private readonly editChannelModalRef = viewChild<ElementRef<HTMLDialogElement>>('editChannelModal');
   private readonly deleteChannelModalRef = viewChild<ElementRef<HTMLDialogElement>>('deleteChannelModal');
   private readonly inviteModalRef = viewChild<ElementRef<HTMLDialogElement>>('inviteModal');
+  private readonly leaveServerModalRef = viewChild<ElementRef<HTMLDialogElement>>('leaveServerModal');
+  private readonly deleteServerModalRef = viewChild<ElementRef<HTMLDialogElement>>('deleteServerModal');
 
   protected createChannelForm = this.fb.group({
     name: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
@@ -60,6 +63,8 @@ export class ChannelListContent {
   protected isCreatingChannel = false;
   protected isEditingChannel = false;
   protected isDeletingChannel = false;
+  protected isLeavingServer = false;
+  protected isDeletingServer = false;
   protected selectedChannel: Channel | null = null;
 
   protected showErrorToast = false;
@@ -124,6 +129,76 @@ export class ChannelListContent {
         this.showToast('Failed to copy invite code.', false);
       });
     }
+  }
+
+  protected openLeaveServerModal(): void {
+    if (this.isServerOwner()) return; // Owners can't leave
+    this.leaveServerModalRef()?.nativeElement.showModal();
+  }
+
+  protected openDeleteServerModal(): void {
+    if (!this.isServerOwner()) return;
+    this.deleteServerModalRef()?.nativeElement.showModal();
+  }
+
+  protected onLeaveServer(): void {
+    if (this.isLeavingServer) return;
+    const sid = this.serverId();
+    if (!sid) return;
+
+    this.isLeavingServer = true;
+    this.serverAPI.leaveServer(sid).subscribe({
+      next: () => {
+        this.isLeavingServer = false;
+        
+        this.serverAPI.servers.update(s => {
+          const newServers = s.filter(srv => srv.id !== sid);
+          if (newServers.length > 0) {
+            this.router.navigate(['/dashboard', newServers[0].id]);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
+          return newServers;
+        });
+
+        this.leaveServerModalRef()?.nativeElement.close();
+      },
+      error: (error) => {
+        this.isLeavingServer = false;
+        const message = error?.error?.message || 'Failed to leave server';
+        this.showToast(message, false);
+      }
+    });
+  }
+
+  protected onDeleteServer(): void {
+    if (this.isDeletingServer) return;
+    const sid = this.serverId();
+    if (!sid) return;
+
+    this.isDeletingServer = true;
+    this.serverAPI.deleteServer(sid).subscribe({
+      next: () => {
+        this.isDeletingServer = false;
+        
+        this.serverAPI.servers.update(s => {
+          const newServers = s.filter(srv => srv.id !== sid);
+          if (newServers.length > 0) {
+            this.router.navigate(['/dashboard', newServers[0].id]);
+          } else {
+            this.router.navigate(['/dashboard']);
+          }
+          return newServers;
+        });
+
+        this.deleteServerModalRef()?.nativeElement.close();
+      },
+      error: (error) => {
+        this.isDeletingServer = false;
+        const message = error?.error?.message || 'Failed to delete server';
+        this.showToast(message, false);
+      }
+    });
   }
 
   protected onCreateChannel(): void {

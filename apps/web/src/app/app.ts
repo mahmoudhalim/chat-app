@@ -20,7 +20,8 @@ import {
   faRightFromBracket,
   faRightToBracket,
   faUserPlus,
-  faCopy
+  faCopy,
+  faTrash
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -50,7 +51,8 @@ export class App {
       faRightFromBracket,
       faRightToBracket,
       faUserPlus,
-      faCopy
+      faCopy,
+      faTrash
     );
   }
 }

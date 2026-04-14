@@ -12,7 +12,7 @@
   popover id="server-options-dropdown" style="position-anchor:--server-options-anchor; position-area: bottom;">
   @if (isServerOwner()) {
     <li>
-      <a (click)="openInviteModal(); serverOptionsDropdown.hidePopover()" class="text-discord-blue">
+      <a (click)="openInviteModal(); serverOptionsDropdown.hidePopover()" class="text-discord-blue hover:text-discord-100 hover:bg-discord-blue/10">
         <fa-icon icon="user-plus" class="w-4"></fa-icon>
         Invite People
       </a>
@@ -23,10 +23,18 @@
         Create Channel
       </a>
     </li>
+    <div class="divider my-0.5 before:bg-[#1f2023] after:bg-[#1f2023]"></div>
+    <li>
+      <a (click)="openDeleteServerModal(); serverOptionsDropdown.hidePopover()" class="text-red-400 hover:text-red-500 hover:bg-red-500/10">
+        <fa-icon icon="trash" class="w-4"></fa-icon>
+        Delete Server
+      </a>
+    </li>
   } @else {
     <li>
-      <a class="pointer-events-none text-discord-300 opacity-50">
-        No options available
+      <a (click)="openLeaveServerModal(); serverOptionsDropdown.hidePopover()" class="text-red-400 hover:text-red-500 hover:bg-red-500/10">
+        <fa-icon icon="right-from-bracket" class="w-4"></fa-icon>
+        Leave Server
       </a>
     </li>
   }
@@ -293,6 +301,56 @@
           <span class="loading loading-spinner loading-xs"></span>
         } @else {
           Delete Channel
+        }
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<!-- Delete Server Modal -->
+<dialog #deleteServerModal class="modal">
+  <div class="modal-box w-11/12 max-w-md bg-discord-850 text-[#f2f3f5] border border-[#1f2023] p-6 shadow-xl">
+    <h3 class="text-2xl font-bold mb-2 text-center text-red-500">Delete '{{ serverResource.value()?.name }}'</h3>
+    <div class="bg-yellow-500/10 border border-yellow-500/50 rounded p-3 mb-6">
+      <p class="text-sm text-yellow-200/90 text-center">Are you sure you want to delete your server? This action cannot be undone.</p>
+    </div>
+
+    <div class="modal-action bg-discord-850 -mx-6 -mb-6 px-6 py-4 flex justify-between items-center rounded-b-box mt-8">
+      <form method="dialog" class="m-0">
+        <button class="btn btn-ghost hover:bg-transparent hover:underline text-[#f2f3f5]" type="button" (click)="deleteServerModal.close()">Cancel</button>
+      </form>
+      <button type="button" class="btn bg-red-500 hover:bg-red-600 text-white border-none w-32 rounded" (click)="onDeleteServer()" [disabled]="isDeletingServer">
+        @if (isDeletingServer) {
+          <span class="loading loading-spinner loading-xs"></span>
+        } @else {
+          Delete Server
+        }
+      </button>
+    </div>
+  </div>
+  <form method="dialog" class="modal-backdrop">
+    <button>close</button>
+  </form>
+</dialog>
+
+<!-- Leave Server Modal -->
+<dialog #leaveServerModal class="modal">
+  <div class="modal-box w-11/12 max-w-md bg-discord-850 text-[#f2f3f5] border border-[#1f2023] p-6 shadow-xl">
+    <h3 class="text-2xl font-bold mb-2 text-center">Leave '{{ serverResource.value()?.name }}'</h3>
+    <p class="text-sm text-discord-300 mb-6 text-center">Are you sure you want to leave <strong class="text-white">{{ serverResource.value()?.name }}</strong>? You won't be able to rejoin unless you are invited again.</p>
+
+    <div class="modal-action bg-discord-850 -mx-6 -mb-6 px-6 py-4 flex justify-between items-center rounded-b-box mt-8">
+      <form method="dialog" class="m-0">
+        <button class="btn btn-ghost hover:bg-transparent hover:underline text-[#f2f3f5]" type="button" (click)="leaveServerModal.close()">Cancel</button>
+      </form>
+      <button type="button" class="btn bg-red-500 hover:bg-red-600 text-white border-none w-32 rounded" (click)="onLeaveServer()" [disabled]="isLeavingServer">
+        @if (isLeavingServer) {
+          <span class="loading loading-spinner loading-xs"></span>
+        } @else {
+          Leave Server
         }
       </button>
     </div>

@@ -1,7 +1,6 @@
-import { Component, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, OnInit, viewChild } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Server } from '@shared/models';
 import { ServerAPI } from 'src/app/core/services/server-api';
 import { FaIconComponent } from "@fortawesome/angular-fontawesome";
 
@@ -16,7 +15,7 @@ export class ServerList implements OnInit {
   private readonly fb = inject(NonNullableFormBuilder);
   private readonly router = inject(Router);
 
-  protected servers = signal<Server[]>([]);
+  protected servers = this.serverAPI.servers;
 
   private readonly createServerModalRef = viewChild<ElementRef<HTMLDialogElement>>('createServerModal');
   private readonly joinServerModalRef = viewChild<ElementRef<HTMLDialogElement>>('joinServerModal');
@@ -35,15 +34,18 @@ export class ServerList implements OnInit {
   protected toastMessage = '';
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
-  ngOnInit(): void {
+  private loadServers() {
     this.serverAPI.getServerList().subscribe((servers) => {
-      this.servers.set(servers);
-      
-      // Auto-navigate to the first server if no server is currently selected in the route
+      this.serverAPI.servers.set(servers);
+
       if (servers.length > 0 && this.router.url === '/dashboard') {
         this.router.navigate(['/dashboard', servers[0].id]);
       }
     });
+  }
+
+  ngOnInit(): void {
+    this.loadServers();
   }
 
   protected openCreateServerModal(): void {
@@ -68,7 +70,7 @@ export class ServerList implements OnInit {
     this.serverAPI.createServer(name).subscribe({
       next: (newServer) => {
         this.isCreatingServer = false;
-        this.servers.update((prev) => [...prev, newServer]);
+        this.serverAPI.servers.update((prev) => [...prev, newServer]);
         this.createServerModalRef()?.nativeElement.close();
         this.router.navigate(['/dashboard', newServer.id]);
       },
@@ -92,9 +94,8 @@ export class ServerList implements OnInit {
     this.serverAPI.joinServer(inviteCode).subscribe({
       next: (newServer) => {
         this.isJoiningServer = false;
-        // Verify we aren't already rendering this server to avoid duplicates
-        if (!this.servers().find(s => s.id === newServer.id)) {
-          this.servers.update((prev) => [...prev, newServer]);
+        if (!this.serverAPI.servers().find(s => s.id === newServer.id)) {
+          this.serverAPI.servers.update((prev) => [...prev, newServer]);
         }
         this.joinServerModalRef()?.nativeElement.close();
         this.router.navigate(['/dashboard', newServer.id]);

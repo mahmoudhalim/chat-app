@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { Server } from '@shared/models';
 import { map, Observable } from 'rxjs';
 
@@ -7,13 +7,13 @@ interface ServerResponse {
   servers: Server[];
 }
 
-
-
 @Injectable({
   providedIn: 'root',
 })
 export class ServerAPI {
   private readonly http = inject(HttpClient);
+  
+  public servers = signal<Server[]>([]);
 
   getServerList(): Observable<Server[]> {
     return this.http.get<ServerResponse>('/api/servers').pipe(
@@ -36,5 +36,13 @@ export class ServerAPI {
     return this.http.post<{ server: Server }>('/api/servers/join', { inviteCode }).pipe(
       map(response => response.server)
     );
+  }
+
+  leaveServer(serverId: string): Observable<void> {
+    return this.http.post<void>(`/api/servers/${serverId}/leave`, {});
+  }
+
+  deleteServer(serverId: string): Observable<void> {
+    return this.http.delete<void>(`/api/servers/${serverId}`);
   }
 }
