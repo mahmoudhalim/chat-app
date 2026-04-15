@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
+import { ThemeService } from './core/services/theme-service';
 import {
   faGear,
   faHashtag,
@@ -26,7 +27,8 @@ import {
   faFileImage,
   faXmark,
   faFile,
-  faCircleNotch
+  faCircleNotch,
+  faPalette
 } from '@fortawesome/free-solid-svg-icons';
 
 @Component({
@@ -36,7 +38,7 @@ import {
   styleUrl: './app.css',
 })
 export class App {
-  constructor(library: FaIconLibrary) {
+  constructor(library: FaIconLibrary, private themeService: ThemeService) {
     library.addIcons(
       faGear,
       faHashtag,
@@ -62,7 +64,8 @@ export class App {
       faFileImage,
       faXmark,
       faFile,
-      faCircleNotch
+      faCircleNotch,
+      faPalette
     );
   }
 }

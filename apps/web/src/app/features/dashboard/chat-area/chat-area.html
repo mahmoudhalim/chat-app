@@ -1,24 +1,13 @@
-<div class="flex flex-col h-full">
+<div class="flex flex-col h-full bg-base-100">
   <!-- Chat Header -->
   <div
-    class="h-12 px-4 flex items-center justify-between border-b border-[#1f2023] shadow-sm z-2 shrink-0"
+    class="h-12 px-4 flex items-center justify-between border-b border-base-300 shadow-sm z-2 shrink-0"
   >
     <div class="flex items-center">
-      <span class="text-xl text-discord-400 mr-2 font-light"
+      <span class="text-xl text-base-content opacity-70 mr-2 font-light"
         ><fa-icon icon="hashtag"></fa-icon
       ></span>
-      <h2 class="text-base font-semibold text-[#f2f3f5]">{{ channel()?.name }}</h2>
-    </div>
-    <div class="flex gap-4 text-discord-200">
-      <span class="cursor-pointer text-lg hover:text-discord-100"
-        ><fa-icon icon="bell"></fa-icon
-      ></span>
-      <span class="cursor-pointer text-lg hover:text-discord-100"
-        ><fa-icon icon="thumbtack"></fa-icon
-      ></span>
-      <span class="cursor-pointer text-lg hover:text-discord-100"
-        ><fa-icon icon="users"></fa-icon
-      ></span>
+      <h2 class="text-base font-semibold text-base-content">{{ channel()?.name }}</h2>
     </div>
   </div>
 
@@ -30,22 +19,22 @@
       (scroll)="onMessagesScroll()"
     >
       @for (m of messages(); track m.id) {
-        <div class="flex px-4 py-2 mt-4 hover:bg-[#2e3035] transition-colors">
+        <div class="flex px-4 py-2 mt-4 hover:bg-base-200 transition-colors">
           @if (getSenderProfilePhoto(m) && getProfilePhotoSrc(getSenderProfilePhoto(m)); as photoSrc) {
             <img [src]="photoSrc" [alt]="getSenderUsername(m) + ' profile'" class="w-10 h-10 rounded-full mr-4 shrink-0 mt-0.5 object-cover">
           } @else {
-            <div class="w-10 h-10 rounded-full bg-[#3ba55c] mr-4 shrink-0 mt-0.5 flex items-center justify-center text-[#f2f3f5] font-semibold text-lg">
+            <div class="w-10 h-10 rounded-full bg-primary mr-4 shrink-0 mt-0.5 flex items-center justify-center text-primary-content font-semibold text-lg">
               {{ getInitials(getSenderUsername(m)) }}
             </div>
           }
           <div class="flex flex-col">
             <div class="flex items-baseline mb-1">
-              <span class="text-base font-medium text-[#f2f3f5] mr-2 cursor-pointer hover:underline"
+              <span class="text-base font-medium text-base-content mr-2 cursor-pointer hover:underline"
                 >{{ getSenderUsername(m) }}</span
               >
-              <span class="text-xs text-discord-300">{{m.createdAt}}</span>
+              <span class="text-xs text-base-content opacity-50">{{m.createdAt}}</span>
             </div>
-            <div class="text-base text-discord-100 leading-snug">
+            <div class="text-base text-base-content opacity-90 leading-snug">
               @if (m.text) {
                 <div>{{m.text}}</div>
               }
@@ -54,9 +43,9 @@
                   @if (m.attachment.type === 'image') {
                     <img [src]="m.attachment.url" alt="Attachment" class="max-w-sm max-h-64 rounded-lg object-contain cursor-pointer">
                   } @else if (m.attachment.type === 'pdf') {
-                    <a [href]="m.attachment.url" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 bg-[#2b2d31] hover:bg-[#313338] transition-colors rounded p-3 w-max border border-[#1e1f22]">
-                      <fa-icon icon="file-pdf" class="text-red-500 text-2xl"></fa-icon>
-                      <span class="text-blue-400 hover:underline">{{m.attachment.name}}</span>
+                    <a [href]="m.attachment.url" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 bg-base-200 hover:bg-base-300 transition-colors rounded p-3 w-max border border-base-300">
+                      <fa-icon icon="file-pdf" class="text-error text-2xl"></fa-icon>
+                      <span class="text-primary hover:underline">{{m.attachment.name}}</span>
                     </a>
                   }
                 </div>
@@ -70,7 +59,7 @@
     @if (unreadCount() > 0) {
       <div class="pointer-events-none absolute bottom-4 left-0 right-0 flex justify-center z-20">
         <button
-          class="pointer-events-auto bg-discord-500 hover:bg-[#4752c4] text-white text-sm font-medium rounded-2xl px-4 py-2 shadow-lg border border-[#6b75ff] transition-colors"
+          class="pointer-events-auto btn btn-primary btn-sm rounded-full shadow-lg"
           (click)="jumpToLatest()"
         >
           {{ unreadCount() }} new {{ unreadCount() === 1 ? 'message' : 'messages' }}
@@ -82,38 +71,38 @@
   <!-- Input Area -->
   <div class="px-4 pb-6 shrink-0 mt-auto relative">
     @if (isEmojiPickerOpen) {
-      <div class="absolute bottom-18 right-4 z-50 shadow-2xl rounded-lg overflow-hidden border border-[#1f2023] bg-discord-850">
+      <div class="absolute bottom-18 right-4 z-50 shadow-2xl rounded-lg overflow-hidden border border-base-300 bg-base-200">
         <emoji-picker class="dark" (emoji-click)="onEmojiSelect($event, messageInput)"></emoji-picker>
       </div>
     }
 
-    <div class="bg-[#383a40] rounded-lg flex flex-col pt-1">
+    <div class="bg-base-200 rounded-lg flex flex-col pt-1">
       @if (pendingAttachment) {
         <div class="px-4 pt-2 pb-1 flex items-center gap-3">
-          <div class="relative bg-[#2b2d31] rounded p-2 flex items-center gap-2 border border-[#1e1f22]">
-            <button class="absolute -top-2 -right-2 bg-discord-700 hover:bg-red-500 rounded-full w-5 h-5 flex items-center justify-center text-white text-xs shadow-md transition-colors" (click)="clearAttachment()">
+          <div class="relative bg-base-300 rounded p-2 flex items-center gap-2 border border-base-300">
+            <button class="absolute -top-2 -right-2 btn btn-error btn-xs btn-circle shadow-md" (click)="clearAttachment()">
               <fa-icon icon="xmark"></fa-icon>
             </button>
             @if (pendingAttachment.type === 'application/pdf') {
-              <fa-icon icon="file-pdf" class="text-red-500 text-xl"></fa-icon>
+              <fa-icon icon="file-pdf" class="text-error text-xl"></fa-icon>
             } @else {
-              <fa-icon icon="file-image" class="text-green-500 text-xl"></fa-icon>
+              <fa-icon icon="file-image" class="text-success text-xl"></fa-icon>
             }
-            <span class="text-sm text-discord-100 max-w-[200px] truncate">{{ pendingAttachment.name }}</span>
+            <span class="text-sm text-base-content max-w-[200px] truncate">{{ pendingAttachment.name }}</span>
           </div>
         </div>
       }
-      
+
       <div class="flex items-center px-4 h-11 pb-1">
-        <input 
-          #fileInput 
-          type="file" 
-          class="hidden" 
-          accept="image/*,application/pdf" 
+        <input
+          #fileInput
+          type="file"
+          class="hidden"
+          accept="image/*,application/pdf"
           (change)="onFileSelected($event)"
         >
         <button
-          class="bg-discord-200 text-[#383a40] w-6 h-6 rounded-full flex items-center justify-center font-bold text-lg cursor-pointer mr-4 hover:bg-discord-100 shrink-0 transition-colors disabled:opacity-50"
+          class="bg-base-content text-base-100 w-6 h-6 rounded-full flex items-center justify-center font-bold text-lg cursor-pointer mr-4 hover:opacity-80 shrink-0 transition-opacity disabled:opacity-50 border-none outline-none focus:outline-none"
           (click)="fileInput.click()"
           [disabled]="isUploading"
         >
@@ -128,13 +117,13 @@
           #messageInput
           type="text"
           placeholder="Message #general"
-          class="flex-1 bg-transparent border-none text-discord-100 text-base outline-none placeholder:text-[#72767d] disabled:opacity-50"
+          class="flex-1 bg-transparent border-none text-base-content text-base outline-none placeholder:opacity-50 disabled:opacity-50"
           (keydown.enter)="sendMessage(messageInput)"
           [disabled]="isUploading"
         />
 
-        <div class="flex gap-3 text-discord-200 ml-2">
-          <button class="cursor-pointer text-xl hover:text-discord-100 disabled:opacity-50"
+        <div class="flex gap-3 text-base-content opacity-70 ml-2">
+          <button class="cursor-pointer text-xl hover:opacity-100 disabled:opacity-50 border-none outline-none focus:outline-none bg-transparent"
             (click)="toggleEmojiPicker()"
             [disabled]="isUploading"
             ><fa-icon icon="face-smile"></fa-icon

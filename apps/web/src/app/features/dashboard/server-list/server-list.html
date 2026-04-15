@@ -2,7 +2,7 @@
 
   @for (server of servers(); track server.id) {
     <div [routerLink]="['/dashboard', server.id]" class="relative w-12 h-12 flex items-center justify-center cursor-pointer group">
-      <div class="w-12 h-12 rounded-3xl bg-discord-800 flex items-center justify-center font-bold text-base transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-discord-500 group-hover:text-white">
+      <div class="w-12 h-12 rounded-3xl bg-base-100 flex items-center justify-center font-bold text-base transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-primary group-hover:text-primary-content">
         <span>{{server.name[0]}}</span>
       </div>
     </div>
@@ -10,54 +10,52 @@
 
   <!-- Add Server Button -->
   <div class="relative w-12 h-12 flex items-center justify-center cursor-pointer group mt-2" (click)="openCreateServerModal()">
-    <div class="w-12 h-12 rounded-3xl bg-discord-800 text-discord-green flex items-center justify-center font-bold text-xl transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-discord-green group-hover:text-white">
+    <div class="w-12 h-12 rounded-3xl bg-base-100 text-success flex items-center justify-center font-bold text-xl transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-success group-hover:text-success-content">
       <fa-icon icon="plus"/>
     </div>
   </div>
   <!-- Join Server Button -->
   <div class="relative w-12 h-12 flex items-center justify-center cursor-pointer group mt-2" (click)="openJoinServerModal()">
-    <div class="w-12 h-12 rounded-3xl bg-discord-800 text-discord-green flex items-center justify-center font-bold text-xl transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-discord-green group-hover:text-white">
+    <div class="w-12 h-12 rounded-3xl bg-base-100 text-success flex items-center justify-center font-bold text-xl transition-all duration-200 overflow-hidden group-hover:rounded-2xl group-hover:bg-success group-hover:text-success-content">
       <fa-icon icon="right-to-bracket"/>
     </div>
   </div>
 </div>
 
 <dialog #createServerModal class="modal">
-  <div class="modal-box w-11/12 max-w-md bg-discord-850 text-[#f2f3f5] border border-[#1f2023] p-6 text-center shadow-xl overflow-hidden">
+  <div class="modal-box bg-base-200 text-base-content p-6 text-center overflow-hidden">
     <h3 class="text-2xl font-bold mb-2">Customize your server</h3>
-    <p class="text-sm text-discord-300 mb-6">Give your new server a personality with a name. You can always change it later.</p>
+    <p class="text-sm opacity-70 mb-6">Give your new server a personality with a name. You can always change it later.</p>
 
     <form [formGroup]="createServerForm" (ngSubmit)="onCreateServer()" class="space-y-4 text-left flex flex-col min-h-[160px]">
       <div class="flex-1">
-        <label class="block text-xs font-semibold uppercase tracking-wide text-discord-300 mb-2">
+        <label class="block text-xs font-semibold uppercase tracking-wide opacity-80 mb-2">
           Server Name
         </label>
         <input
           type="text"
-          class="input w-full bg-[#1e1f22] text-[#f2f3f5] border-none focus:ring-0 rounded focus:outline-none"
+          class="input input-bordered w-full"
           formControlName="name"
           maxlength="50"
           placeholder="My Server"
         />
         @if (createServerForm.controls.name.touched && createServerForm.controls.name.hasError('required')) {
-          <p class="text-xs text-red-400 mt-1 italic">Server name is required.</p>
+          <p class="text-xs text-error mt-1 italic">Server name is required.</p>
         }
         @if (createServerForm.controls.name.touched && createServerForm.controls.name.hasError('minlength')) {
-          <p class="text-xs text-red-400 mt-1 italic">Server name must be at least 2 characters.</p>
+          <p class="text-xs text-error mt-1 italic">Server name must be at least 2 characters.</p>
         }
       </div>
 
-      <div class="modal-action bg-[#2b2d31] -mx-6 -mb-6 px-6 py-4 flex flex-col items-stretch mt-auto">
-        <div class="flex justify-between items-center w-full">
-          <button class="btn btn-ghost hover:bg-transparent hover:underline text-[#f2f3f5]" type="button" (click)="createServerModal.close()">Cancel</button>
-          <button type="submit" class="btn bg-discord-500 hover:bg-discord-600 text-white border-none w-24 rounded" [disabled]="isCreatingServer">
-            @if (isCreatingServer) {
-              <span class="loading loading-spinner loading-xs"></span>
-            } @else {
-              Create
-            }
-          </button>
-        </div>
+      <div class="modal-action bg-base-300 -mx-6 -mb-6 px-6 py-4 flex justify-between items-center mt-auto">
+        <button class="btn btn-ghost" type="button" (click)="createServerModal.close()">Cancel</button>
+        <button type="submit" class="btn btn-primary w-24" [disabled]="isCreatingServer">
+          @if (isCreatingServer) {
+            <span class="loading loading-spinner loading-xs"></span>
+          } @else {
+            Create
+          }
+        </button>
       </div>
     </form>
   </div>
@@ -67,29 +65,29 @@
 </dialog>
 
 <dialog #joinServerModal class="modal">
-  <div class="modal-box w-11/12 max-w-md bg-discord-850 text-[#f2f3f5] border border-[#1f2023] p-6 text-center shadow-xl overflow-hidden">
+  <div class="modal-box bg-base-200 text-base-content p-6 text-center overflow-hidden">
     <h3 class="text-2xl font-bold mb-2">Join a Server</h3>
-    <p class="text-sm text-discord-300 mb-6">Enter an invite below to join an existing server</p>
+    <p class="text-sm opacity-70 mb-6">Enter an invite below to join an existing server</p>
 
     <form [formGroup]="joinServerForm" (ngSubmit)="onJoinServer()" class="space-y-4 text-left flex flex-col min-h-[160px]">
       <div class="flex-1">
-        <label class="block text-xs font-semibold uppercase tracking-wide text-discord-300 mb-2">
+        <label class="block text-xs font-semibold uppercase tracking-wide opacity-80 mb-2">
           Invite Code
         </label>
         <input
           type="text"
-          class="input w-full bg-[#1e1f22] text-[#f2f3f5] border-none focus:ring-0 rounded focus:outline-none"
+          class="input input-bordered w-full"
           formControlName="inviteCode"
           placeholder="e.g. a8b9c0d1"
         />
         @if (joinServerForm.controls.inviteCode.touched && joinServerForm.controls.inviteCode.hasError('required')) {
-          <p class="text-xs text-red-400 mt-1 italic">Invite code is required.</p>
+          <p class="text-xs text-error mt-1 italic">Invite code is required.</p>
         }
       </div>
 
-      <div class="modal-action bg-[#2b2d31] -mx-6 -mb-6 px-6 py-4 flex justify-between items-center rounded-b-box mt-auto">
-        <button class="btn btn-ghost hover:bg-transparent hover:underline text-[#f2f3f5]" type="button" (click)="joinServerModal.close()">Cancel</button>
-        <button type="submit" class="btn bg-discord-green hover:bg-[#1f8c54] text-white border-none w-32 rounded" [disabled]="isJoiningServer">
+      <div class="modal-action bg-base-300 -mx-6 -mb-6 px-6 py-4 flex justify-between items-center mt-auto">
+        <button class="btn btn-ghost" type="button" (click)="joinServerModal.close()">Cancel</button>
+        <button type="submit" class="btn btn-success text-success-content w-32" [disabled]="isJoiningServer">
           @if (isJoiningServer) {
             <span class="loading loading-spinner loading-xs"></span>
           } @else {
@@ -106,7 +104,7 @@
 
 @if (showErrorToast) {
   <div class="toast toast-end toast-bottom z-50">
-    <div class="alert alert-error text-white shadow-lg">
+    <div class="alert alert-error text-error-content shadow-lg">
       <span>{{ toastMessage }}</span>
     </div>
   </div>

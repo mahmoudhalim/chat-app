@@ -3,7 +3,8 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AuthAPI } from 'src/app/features/auth/services/auth-api';
-import { VoiceService } from 'src/app/core/services/voice.service';
+import { VoiceService } from 'src/app/core/services/voice-service';
+import { ThemeService, AVAILABLE_THEMES } from 'src/app/core/services/theme-service';
 
 @Component({
   selector: 'app-channel-user-controls',
@@ -16,6 +17,10 @@ export class ChannelUserControls implements OnDestroy {
   private readonly router = inject(Router);
   protected readonly authAPI = inject(AuthAPI);
   protected readonly voiceService = inject(VoiceService);
+  protected readonly themeService = inject(ThemeService);
+
+  public themes = AVAILABLE_THEMES;
+  public currentTheme = this.themeService.currentTheme;
 
   private readonly profileModalRef = viewChild<ElementRef<HTMLDialogElement>>('profileModal');
   private readonly profilePhotoInputRef = viewChild<ElementRef<HTMLInputElement>>('profilePhotoInput');
@@ -32,6 +37,7 @@ export class ChannelUserControls implements OnDestroy {
   protected showSuccessToast = false;
   protected showErrorToast = false;
   protected toastMessage = '';
+  protected isUserMenuOpen = false;
 
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -61,6 +67,20 @@ export class ChannelUserControls implements OnDestroy {
 
     this.profilePhotoFile = file;
     this.profilePhotoFileName = file?.name ?? '';
+  }
+
+  protected onThemeChange(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    this.themeService.setTheme(select.value);
+  }
+
+  protected toggleUserMenu(event?: Event): void {
+    event?.stopPropagation();
+    this.isUserMenuOpen = !this.isUserMenuOpen;
+  }
+
+  protected closeUserMenu(): void {
+    this.isUserMenuOpen = false;
   }
 
   protected saveProfile(): void {
@@ -163,6 +183,7 @@ export class ChannelUserControls implements OnDestroy {
 
   protected logout(): void {
     if (this.isLoggingOut) return;
+    this.closeUserMenu();
     this.isLoggingOut = true;
 
     if (this.voiceService.connectionState() !== 'disconnected') {

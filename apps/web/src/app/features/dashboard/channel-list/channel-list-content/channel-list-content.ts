@@ -6,7 +6,7 @@ import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { of } from 'rxjs';
 import { ChannelAPI } from 'src/app/core/services/channel-api';
 import { ServerAPI } from 'src/app/core/services/server-api';
-import { VoiceService } from 'src/app/core/services/voice.service';
+import { VoiceService } from 'src/app/core/services/voice-service';
 import { socketService } from 'src/app/core/services/socket-service';
 import { AuthAPI } from 'src/app/features/auth/services/auth-api';
 import { Channel } from '@shared/models';
@@ -150,7 +150,7 @@ export class ChannelListContent {
     this.serverAPI.leaveServer(sid).subscribe({
       next: () => {
         this.isLeavingServer = false;
-        
+
         this.serverAPI.servers.update(s => {
           const newServers = s.filter(srv => srv.id !== sid);
           if (newServers.length > 0) {
@@ -180,7 +180,7 @@ export class ChannelListContent {
     this.serverAPI.deleteServer(sid).subscribe({
       next: () => {
         this.isDeletingServer = false;
-        
+
         this.serverAPI.servers.update(s => {
           const newServers = s.filter(srv => srv.id !== sid);
           if (newServers.length > 0) {

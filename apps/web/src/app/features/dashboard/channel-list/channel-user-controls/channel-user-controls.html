@@ -1,158 +1,201 @@
 <!-- Voice Connection Panel -->
 @if (voiceService.connectionState() !== 'disconnected') {
-  <div class="bg-[#292b2f] border-b border-[#1f2023] px-2 py-2 flex flex-col shrink-0 text-sm">
-    <div class="flex items-center justify-between text-discord-green font-semibold mb-1">
+  <div class="bg-base-200 border-b border-base-300 px-2 py-2 flex flex-col shrink-0 text-sm">
+    <div class="flex items-center justify-between text-success font-semibold mb-1">
       <div class="flex items-center">
         <fa-icon icon="signal" class="mr-2"></fa-icon>
         <span>Voice Connected</span>
       </div>
       <button
-        class="text-discord-300 hover:text-discord-100 p-1 rounded hover:bg-discord-700 leading-none"
+        class="opacity-70 hover:opacity-100 p-1 rounded hover:bg-base-300 leading-none"
         (click)="voiceService.leave()"
         title="Disconnect"
       >
         <fa-icon icon="phone-slash"></fa-icon>
       </button>
     </div>
-    <div class="text-discord-300 text-xs truncate">
+    <div class="text-base-content opacity-70 text-xs truncate">
       {{ voiceService.currentChannelName() }}
     </div>
   </div>
 }
 
 <!-- User Controls -->
-<div class="mt-auto h-13 bg-[#232428] px-2 flex items-center justify-between shrink-0">
-  <button
-    class="flex items-center p-1 rounded cursor-pointer hover:bg-discord-700 text-left bg-transparent border-none outline-none focus:outline-none"
-    popovertarget="user-controls-dropdown"
-    style="anchor-name:--user-controls-anchor"
+<div class="mt-auto h-13 bg-base-300 px-2 flex items-center justify-between shrink-0">
+  <div
+    class="dropdown dropdown-top"
+    [class.dropdown-open]="isUserMenuOpen"
+    (document:click)="closeUserMenu()"
+    (click)="$event.stopPropagation()"
+    (keydown.escape)="closeUserMenu()"
   >
-    @if (getCurrentUserPhotoSrc(); as photoSrc) {
-      <img
-        [src]="photoSrc"
-        [alt]="authAPI.currentUser()?.username + ' profile photo'"
-        class="w-8 h-8 rounded-full mr-2 shrink-0 object-cover"
-      />
-    } @else {
-      <div
-        class="w-8 h-8 rounded-full bg-discord-500 mr-2 shrink-0 flex items-center justify-center text-xs font-semibold text-white"
-      >
-        {{ getCurrentUserInitials() }}
-      </div>
-    }
+    <button
+      type="button"
+      role="button"
+      class="flex items-center p-1 rounded cursor-pointer hover:bg-base-200 text-left bg-transparent border-none outline-none focus:outline-none"
+      (click)="toggleUserMenu($event)"
+    >
+      @if (getCurrentUserPhotoSrc(); as photoSrc) {
+        <img
+          [src]="photoSrc"
+          [alt]="authAPI.currentUser()?.username + ' profile photo'"
+          class="w-8 h-8 rounded-full mr-2 shrink-0 object-cover"
+        />
+      } @else {
+        <div
+          class="w-8 h-8 rounded-full bg-primary mr-2 shrink-0 flex items-center justify-center text-xs font-semibold text-primary-content"
+        >
+          {{ getCurrentUserInitials() }}
+        </div>
+      }
 
-    <div class="flex flex-col min-w-0">
-      <div class="text-sm font-semibold text-[#f2f3f5] leading-tight truncate w-20">
-        {{ authAPI.currentUser()?.username || 'Username' }}
+      <div class="flex flex-col min-w-0">
+        <div class="text-sm font-semibold text-base-content leading-tight truncate w-20">
+          {{ authAPI.currentUser()?.username || 'Username' }}
+        </div>
+        <div class="text-xs text-base-content opacity-70 leading-tight">Online</div>
       </div>
-      <div class="text-xs text-discord-300 leading-tight">Online</div>
-    </div>
-  </button>
+    </button>
+
+    <ul tabindex="0" class="dropdown-content menu w-52 rounded-box bg-base-200 border border-base-300 shadow-md text-base-content mb-2 overflow-visible">
+      <li>
+        <a (click)="openProfileModal(); closeUserMenu()" class="hover:bg-base-300">
+          <fa-icon icon="pen" class="w-4"></fa-icon>
+          Edit Profile
+        </a>
+      </li>
+      <li class="p-0">
+        <div class="dropdown dropdown-right w-full p-0">
+          <div tabindex="0" role="button" class="btn btn-ghost w-full justify-between normal-case font-normal p-4 h-auto min-h-0 border-none hover:bg-base-300 rounded-none">
+            <div class="flex items-center gap-2">
+              <fa-icon icon="palette" class="w-4"></fa-icon>
+              Theme
+            </div>
+            <svg
+              width="12px"
+              height="12px"
+              class="inline-block h-2 w-2 fill-current opacity-60 -rotate-90"
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 2048 2048">
+              <path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path>
+            </svg>
+          </div>
+          <div tabindex="-1" class="dropdown-content bg-base-300 rounded-box z-1 w-52 p-2 shadow-2xl h-64 overflow-y-auto ml-1">
+            <div class="flex flex-col gap-1">
+              @for (theme of themes; track theme) {
+                <div>
+                  <input
+                    type="radio"
+                    name="theme-dropdown"
+                    class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start capitalize"
+                    [attr.aria-label]="theme"
+                    [value]="theme"
+                    [checked]="theme === currentTheme()"
+                    (change)="onThemeChange($event)" />
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </li>
+      <div class="divider my-0.5 before:bg-base-300 after:bg-base-300"></div>
+      <li>
+        <a (click)="logout(); closeUserMenu()" class="text-error hover:text-error hover:bg-error/10 mt-1">
+          <fa-icon icon="right-from-bracket" class="w-4"></fa-icon>
+          Log Out
+        </a>
+      </li>
+    </ul>
+  </div>
 
   <div class="flex">
     <button
       class="p-2 rounded cursor-pointer leading-none relative"
-      [class.text-discord-200]="!voiceService.isMuted()"
-      [class.text-red-500]="voiceService.isMuted()"
-      [class.hover:bg-discord-700]="true"
-      [class.hover:text-discord-100]="!voiceService.isMuted()"
+      [class.opacity-70]="!voiceService.isMuted()"
+      [class.text-error]="voiceService.isMuted()"
+      [class.hover:bg-base-200]="true"
+      [class.hover:opacity-100]="!voiceService.isMuted()"
       (click)="voiceService.toggleMute()"
     >
       <fa-icon [icon]="voiceService.isMuted() ? 'microphone-slash' : 'microphone'"></fa-icon>
     </button>
     <button
       class="p-2 rounded cursor-pointer leading-none relative"
-      [class.text-discord-200]="!voiceService.isDeafened()"
-      [class.text-red-500]="voiceService.isDeafened()"
-      [class.hover:bg-discord-700]="true"
-      [class.hover:text-discord-100]="!voiceService.isDeafened()"
+      [class.opacity-70]="!voiceService.isDeafened()"
+      [class.text-error]="voiceService.isDeafened()"
+      [class.hover:bg-base-200]="true"
+      [class.hover:opacity-100]="!voiceService.isDeafened()"
       (click)="voiceService.toggleDeafen()"
     >
       <fa-icon icon="headphones"></fa-icon>
       @if (voiceService.isDeafened()) {
         <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <div class="w-5 h-0.5 bg-red-500 rotate-45"></div>
+          <div class="w-5 h-0.5 bg-error rotate-45"></div>
         </div>
       }
     </button>
     <button
-      class="p-2 rounded cursor-pointer text-discord-200 hover:bg-discord-700 hover:text-discord-100 leading-none bg-transparent border-none outline-none focus:outline-none"
-      popovertarget="user-controls-dropdown"
+      class="p-2 rounded cursor-pointer opacity-70 hover:bg-base-200 hover:opacity-100 leading-none bg-transparent border-none outline-none focus:outline-none"
+      (click)="toggleUserMenu($event)"
     >
       <fa-icon icon="gear"></fa-icon>
     </button>
   </div>
 </div>
 
-<ul #userControlsDropdown class="dropdown menu w-52 rounded-box bg-discord-850 border border-[#1f2023] shadow-md text-[#f2f3f5] mb-2"
-  popover id="user-controls-dropdown" style="position-anchor:--user-controls-anchor; position-area: top;">
-  <li>
-    <a (click)="openProfileModal(); userControlsDropdown.hidePopover()">
-      <fa-icon icon="pen" class="w-4"></fa-icon>
-      Edit Profile
-    </a>
-  </li>
-  <li>
-    <a (click)="logout(); userControlsDropdown.hidePopover()" class="text-red-400 hover:text-red-500 hover:bg-red-500/10 mt-1">
-      <fa-icon icon="right-from-bracket" class="w-4"></fa-icon>
-      Log Out
-    </a>
-  </li>
-</ul>
-
 <dialog #profileModal class="modal">
-  <div class="modal-box w-11/12 max-w-lg bg-discord-850 text-[#f2f3f5] border border-[#1f2023]">
+  <div class="modal-box w-11/12 max-w-lg bg-base-200 text-base-content border border-base-300">
     <h3 class="text-lg font-bold">Edit Profile</h3>
-    <p class="py-2 text-sm text-discord-300">Update your username, password, and profile photo.</p>
+    <p class="py-2 text-sm opacity-70">Update your username, password, and profile photo.</p>
 
     <div class="space-y-3 mt-2">
       <form [formGroup]="profileForm" class="space-y-3">
       <div>
-        <label class="block text-xs font-semibold uppercase tracking-wide text-discord-300 mb-1">
+        <label class="block text-xs font-semibold uppercase tracking-wide opacity-80 mb-1">
           Username
         </label>
         <input
           type="text"
-          class="input input-bordered w-full bg-discord-900 border-[#1f2023]"
+          class="input input-bordered w-full bg-base-100 border-base-300"
           formControlName="username"
           maxlength="30"
         />
         @if (profileForm.controls.username.touched && profileForm.controls.username.hasError('required')) {
-          <p class="text-xs text-red-300 mt-1">Username is required.</p>
+          <p class="text-xs text-error mt-1">Username is required.</p>
         }
         @if (profileForm.controls.username.touched && profileForm.controls.username.hasError('pattern')) {
-          <p class="text-xs text-red-300 mt-1">Username cannot contain spaces.</p>
+          <p class="text-xs text-error mt-1">Username cannot contain spaces.</p>
         }
       </div>
 
       <div>
-        <label class="block text-xs font-semibold uppercase tracking-wide text-discord-300 mb-1">
+        <label class="block text-xs font-semibold uppercase tracking-wide opacity-80 mb-1">
           New Password
         </label>
         <input
           type="password"
-          class="input input-bordered w-full bg-discord-900 border-[#1f2023]"
+          class="input input-bordered w-full bg-base-100 border-base-300"
           formControlName="password"
           placeholder="Leave empty to keep current password"
         />
         @if (profileForm.controls.password.touched && profileForm.controls.password.hasError('minlength')) {
-          <p class="text-xs text-red-300 mt-1">Password must be at least 6 characters.</p>
+          <p class="text-xs text-error mt-1">Password must be at least 6 characters.</p>
         }
       </div>
 
       <div>
-        <label class="block text-xs font-semibold uppercase tracking-wide text-discord-300 mb-1">
+        <label class="block text-xs font-semibold uppercase tracking-wide opacity-80 mb-1">
           Profile Photo
         </label>
         <input
           type="file"
           #profilePhotoInput
-          class="file-input file-input-bordered w-full bg-discord-900 border-[#1f2023]"
+          class="file-input file-input-bordered w-full bg-base-100 border-base-300"
           accept="image/png,image/jpeg,image/webp,image/gif"
           (change)="onProfilePhotoSelected($event)"
         />
         @if (profilePhotoFileName) {
-          <p class="text-xs text-discord-300 mt-1 truncate">Selected: {{ profilePhotoFileName }}</p>
+          <p class="text-xs opacity-70 mt-1 truncate">Selected: {{ profilePhotoFileName }}</p>
         }
       </div>
       </form>
@@ -180,13 +223,13 @@
 @if (showSuccessToast || showErrorToast) {
   <div class="toast toast-end toast-bottom z-50">
     @if (showSuccessToast) {
-      <div class="alert alert-success text-white">
+      <div class="alert alert-success text-success-content">
         <span>{{ toastMessage }}</span>
       </div>
     }
 
     @if (showErrorToast) {
-      <div class="alert alert-error text-white">
+      <div class="alert alert-error text-error-content">
         <span>{{ toastMessage }}</span>
       </div>
     }
