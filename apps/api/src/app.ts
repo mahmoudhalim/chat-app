@@ -25,6 +25,10 @@ app.use("/api/auth", authRouter)
 app.use("/api/servers", serverRouter)
 app.use("/api/channels", channelRouter)
 
+app.use("/api/up", (req, res) => {
+  res.status(200).json({ message: "OK" })
+})
+
 app.use((req, res) => {
   res.status(404).json({ message: `Unknown endpoint: ${req.method} ${req.originalUrl}` })
 })
